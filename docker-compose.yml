@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: cashpath_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_CASH_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - ".env" # Injects all variables from .env into the webapp container
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cashpath_net
+
+  app:
+    build: .
+    container_name: cashpath_app
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      #SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_CASH_NAME}
+      #SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      #SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: postgres
+      DB_CASH_NAME: ${DB_CASH_NAME}
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_FLYWAY_ENABLED: true
+      SPRING_FLYWAY_LOCATIONS: classpath:db/migration
+    env_file:
+      - ".env" # Injects all variables from .env into the webapp container
+    ports:
+      - "8083:8083"
+    networks:
+      - cashpath_net
+
+volumes:
+  postgres_data:
+
+networks:
+  cashpath_net:
+    driver: bridge

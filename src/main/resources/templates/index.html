@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>CashPath - Путь денег</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1>CashPath - Путь денег</h1>
+
+<h2>Создать новую игру</h2>
+<form th:action="@{/create-game}" method="post">
+    <button type="submit">Создать игру</button>
+</form>
+
+</body>
+</html>
