@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -20,6 +21,9 @@ public class Game {
 
     @Column(name = "current_turn")
     private int currentTurn;
+
+    @Column(name = "current_day", nullable = false)
+    private LocalDate currentDay = LocalDate.now();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
