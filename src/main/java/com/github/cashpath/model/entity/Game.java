@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -32,5 +33,13 @@ public class Game {
     @SuppressWarnings("unused")
     public enum GameStatus {
         ACTIVE, FINISHED
+    }
+
+    public void addPlayer(Player player) {
+        player.setGame(this);
+        if (players == null) {
+            players = new ArrayList<>();
+        }
+        players.add(player);
     }
 }

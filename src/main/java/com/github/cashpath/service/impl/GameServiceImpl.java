@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -56,7 +55,7 @@ public class GameServiceImpl implements GameService {
         }
 
         // Обновляем cash игрока с учетом salary, passiveIncome и expenses
-        double cashFlow = (current.getSalary() + passiveIncome - current.getMonthlyExpenses())/30;
+        double cashFlow = (current.getSalary() + passiveIncome - current.getMonthlyExpenses()) / 30;
         current.setCash(current.getCash() + cashFlow);
         log += " | CashFlow of this move: " + cashFlow;
 
@@ -74,30 +73,21 @@ public class GameServiceImpl implements GameService {
     public Game createGame(List<Player> players) {
         Game game = new Game();
         game.setStatus(Game.GameStatus.ACTIVE);
-        game.setPlayers(players);
-        Game saved = gameRepository.save(game);
 
-        List<Player> savedPlayers = new ArrayList<>();
-        for (Player player : players) {
-            savedPlayers.add(createPlayerWithPassives(player, saved));
-        }
-        saved.setPlayers(savedPlayers);
-        return gameRepository.save(saved);
-    }
-
-    @Transactional
-    private Player createPlayerWithPassives(Player player, Game game){
         RandomGeneratorUtil randomGeneratorUtil = new RandomGeneratorUtil();
+        for (Player player : players) {
+            player.setSalary(randomGeneratorUtil.getSalary());
+            player.setCash(0);
 
-        player.setSalary(randomGeneratorUtil.getSalary());
-        List<Liability> liabilities = randomGeneratorUtil.getLiabilities();
-        liabilities.forEach(e->e.setOwner(player));
+            List<Liability> liabilities = randomGeneratorUtil.getLiabilities();
+            liabilities.forEach(e -> e.setOwner(player));
+            player.setLiabilities(liabilities);
 
-        player.setMonthlyExpenses(liabilities.stream().mapToDouble(Liability::getMonthlyPayment).sum());
-        player.setCash(0);
-        player.setGame(game);
-        player.setLiabilities(liabilities);
-        return playerRepository.save(player);
+            player.setMonthlyExpenses(liabilities.stream()
+                    .mapToDouble(Liability::getMonthlyPayment).sum());
+            game.addPlayer(player);
+        }
+        return gameRepository.save(game);
     }
 
     @Override
