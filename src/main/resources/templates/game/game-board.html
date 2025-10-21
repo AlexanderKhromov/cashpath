@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CashPath — Игровое поле</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f8f9fa; }
+        h1 { color: #333; }
+        .player-card {
+            border: 1px solid #ccc; border-radius: 10px;
+            padding: 15px; margin: 10px; background: #fff;
+            width: 45%; float: left;
+        }
+        .active { border-color: #007bff; box-shadow: 0 0 10px rgba(0,123,255,0.3); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 5px; text-align: left; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .clearfix::after { content: ""; clear: both; display: table; }
+    </style>
+</head>
+<body>
+
+<h1>CashPath — Игровое поле</h1>
+<h3>День <span th:text="${game.currentDay}"></span> |
+    Ход игрока:
+    <span th:text="${game.players[game.currentTurn].name}"></span>>
+</h3>
+
+<div class="clearfix">
+    <div th:each="player, iterStat : ${game.players}"
+         th:class="'player-card ' + (${iterStat.index} == ${game.currentTurn} ? 'active' : '')">
+
+        <h2 th:text="${player.name}"></h2>
+        <p>💰 Наличные: <b th:text="${#numbers.formatDecimal(player.cash, 0, 'COMMA', 2, 'POINT')}"></b> ₴</p>
+        <p>💼 Зарплата: <b th:text="${player.salary}"></b> ₴</p>
+        <p>📉 Ежемесячные расходы: <b th:text="${player.monthlyExpenses}"></b> ₴</p>
+        <p>📈 Пассивный доход: <b th:text="${passiveIncomes[iterStat.index]}"></b> ₴</p>
+
+        <h4>Пассивы:</h4>
+        <table>
+            <thead>
+            <tr>
+                <th>Название</th>
+                <th>Платёж</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${player.liabilities}">
+                <td th:text="${p.name}"></td>
+                <td th:text="${p.monthlyPayment}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Кнопка активного игрока -->
+        <form th:if="${iterStat.index} == ${game.currentTurn}"
+              th:action="@{'/game/' + ${game.id} + '/next-turn'}"
+              method="post">
+            <button type="submit">Закончить ход</button>
+        </form>
+    </div>
+</div>
+
+<!-- Лог -->
+<div th:if="${log}" class="log-box">
+    <h3>🧾 Результат последнего хода:</h3>
+    <div th:text="${log}"></div>
+</div>
+
+</body>
+</html>
