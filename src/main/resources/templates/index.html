@@ -9,6 +9,8 @@
 
 <h2>Создать новую игру</h2>
 <form th:action="@{/create-game}" method="post">
+    <label>Игрок 1: <input name="player1" /></label><br>
+    <label>Игрок 2: <input name="player2" /></label><br>
     <button type="submit">Создать игру</button>
 </form>
 
