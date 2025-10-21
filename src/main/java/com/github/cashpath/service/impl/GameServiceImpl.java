@@ -1,14 +1,10 @@
 package com.github.cashpath.service.impl;
 
-import com.github.cashpath.model.entity.Asset;
-import com.github.cashpath.model.entity.Game;
-import com.github.cashpath.model.entity.OpportunityCard;
-import com.github.cashpath.model.entity.Player;
-import com.github.cashpath.repository.AssetRepository;
-import com.github.cashpath.repository.GameRepository;
-import com.github.cashpath.repository.OpportunityCardRepository;
-import com.github.cashpath.repository.PlayerRepository;
+import com.github.cashpath.exception.GameNotFoundException;
+import com.github.cashpath.model.entity.*;
+import com.github.cashpath.repository.*;
 import com.github.cashpath.service.GameService;
+import com.github.cashpath.util.RandomGeneratorUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +56,7 @@ public class GameServiceImpl implements GameService {
         }
 
         // Обновляем cash игрока с учетом salary, passiveIncome и expenses
-        double cashFlow = current.getSalary() + passiveIncome - current.getMonthlyExpenses();
+        double cashFlow = (current.getSalary() + passiveIncome - current.getMonthlyExpenses())/30;
         current.setCash(current.getCash() + cashFlow);
         log += " | CashFlow of this move: " + cashFlow;
 
@@ -75,12 +71,37 @@ public class GameServiceImpl implements GameService {
 
     @Transactional
     @Override
-    public Game createGame() {
+    public Game createGame(List<Player> players) {
         Game game = new Game();
         game.setStatus(Game.GameStatus.ACTIVE);
-        game.setPlayers(new ArrayList<>());
-        gameRepository.save(game);
-        return game;
+        game.setPlayers(players);
+        Game saved = gameRepository.save(game);
 
+        List<Player> savedPlayers = new ArrayList<>();
+        for (Player player : players) {
+            savedPlayers.add(createPlayerWithPassives(player, saved));
+        }
+        saved.setPlayers(savedPlayers);
+        return gameRepository.save(saved);
+    }
+
+    @Transactional
+    private Player createPlayerWithPassives(Player player, Game game){
+        RandomGeneratorUtil randomGeneratorUtil = new RandomGeneratorUtil();
+
+        player.setSalary(randomGeneratorUtil.getSalary());
+        List<Liability> liabilities = randomGeneratorUtil.getLiabilities();
+        liabilities.forEach(e->e.setOwner(player));
+
+        player.setMonthlyExpenses(liabilities.stream().mapToDouble(Liability::getMonthlyPayment).sum());
+        player.setCash(0);
+        player.setGame(game);
+        player.setLiabilities(liabilities);
+        return playerRepository.save(player);
+    }
+
+    @Override
+    public Game findById(Long id) {
+        return gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException(id));
     }
 }
