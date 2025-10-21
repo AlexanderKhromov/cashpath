@@ -23,6 +23,11 @@ services:
 
   app:
     build: .
+    volumes:
+      - ./src:/app/src            # mount sources
+      - ./pom.xml:/app/pom.xml    # if needed
+    command: mvn spring-boot:run  # to run from command line ("docker compose build" then "docker compose up -d")
+                                  # or "docker compose up -d --build"
     container_name: cashpath_app
     restart: always
     depends_on:
