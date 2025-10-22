@@ -16,11 +16,13 @@ import java.util.Random;
 @Service
 @AllArgsConstructor
 public class GameServiceImpl implements GameService {
+    public static final int MONTH_DAYS = 30;
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
     private final AssetRepository assetRepository;
     private final OpportunityCardRepository cardRepository;
 
+    @Transactional
     public String playerMove(Long gameId) {
         Game game = gameRepository.findById(gameId).orElseThrow();
         List<Player> players = game.getPlayers();
@@ -54,8 +56,8 @@ public class GameServiceImpl implements GameService {
             log += "Doodad spend: " + card.getAmount();
         }
 
-        // Обновляем cash игрока с учетом salary, passiveIncome и expenses
-        double cashFlow = (current.getSalary() + passiveIncome - current.getMonthlyExpenses()) / 30;
+        // Update the cash of a player taking into account salary, passiveIncome и expenses
+        double cashFlow = Math.round((current.getSalary() + passiveIncome - current.getMonthlyExpenses()) / MONTH_DAYS);
         current.setCash(current.getCash() + cashFlow);
         log += " | CashFlow of this move: " + cashFlow;
 
@@ -77,7 +79,7 @@ public class GameServiceImpl implements GameService {
         for (Player player : players) {
             RandomGeneratorUtil randomGeneratorUtil = new RandomGeneratorUtil();
             player.setSalary(randomGeneratorUtil.getSalary());
-            player.setCash(0);
+            player.setCash(randomGeneratorUtil.getCash());
 
             List<Liability> liabilities = randomGeneratorUtil.getLiabilities();
             liabilities.forEach(e -> e.setOwner(player));

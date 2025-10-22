@@ -12,26 +12,28 @@ public class RandomGeneratorUtil {
     private static final List<String> GOODS = List.of("Телефон", "Телевизор", "Ноутбук", "Стиральная машина", "Диван");
     private final Random random = new Random();
     private final double salary;
+    private final double cash;
     private final List<Liability> liabilities;
 
     public RandomGeneratorUtil() {
         this.salary = generateRandomSalary();
         this.liabilities = generateRandomInitialLiabilities(salary);
+        this.cash = salary * generateRandomPercent(100);
     }
 
     private double generateRandomSalary() {
         return 15000 + random.nextInt(45001);// 15000–60000
     }
 
-    private double generateRandomMonthlyExpensePercent() {
-        return random.nextDouble(0.1) + 0.01; // ±11%
+    private double generateRandomPercent(double bound) {
+        return random.nextDouble(bound) + 0.01; // ±11%
     }
 
     private List<Liability> generateRandomInitialLiabilities(double salary) {
         List<Liability> result = new ArrayList<>();
         result.add(createLiability("Жилье", salary, 0.40));
-        result.add(createLiability("Кредитная карта", salary, generateRandomMonthlyExpensePercent()));
-        result.add(createLiability(getRandomItem(), salary, generateRandomMonthlyExpensePercent()));
+        result.add(createLiability("Кредитная карта", salary, generateRandomPercent(0.1)));
+        result.add(createLiability(getRandomItem(), salary, generateRandomPercent(0.1)));
         return result;
     }
 
