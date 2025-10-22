@@ -32,11 +32,10 @@
          th:class="'player-card ' + (${iterStat.index} == ${game.currentTurn} ? 'active' : '')">
 
         <h2 th:text="${player.name}"></h2>
-        <p>💰 Наличные: <b th:text="${#numbers.formatDecimal(player.cash, 0, 'COMMA', 2, 'POINT')}"></b> ₴</p>
-        <p>💼 Зарплата: <b th:text="${player.salary}"></b> ₴</p>
-        <p>📉 Ежемесячные расходы: <b th:text="${player.monthlyExpenses}"></b> ₴</p>
-        <p>📈 Пассивный доход: <b th:text="${passiveIncomes[iterStat.index]}"></b> ₴</p>
-
+        <p>💰 Наличные: <b th:text="${#numbers.formatDecimal(player.cash, 1, 2)}"></b> ₴</p>
+        <p>💼 Зарплата: <b th:text="${#numbers.formatDecimal(player.salary, 1, 2)}"></b> ₴</p>
+        <p>📉 Ежемесячные расходы: <b th:text="${#numbers.formatDecimal(player.monthlyExpenses, 1, 2)}"></b> ₴</p>
+        <p>📈 Пассивный доход: <b th:text="${#numbers.formatDecimal(passiveIncomes[iterStat.index], 1, 2)}"></b> ₴</p>
         <h4>Пассивы:</h4>
         <table>
             <thead>
