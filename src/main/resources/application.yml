@@ -22,6 +22,12 @@ spring:
     suffix: .html
     mode: HTML
     cache: false
+    encoding: UTF-8
+  web:
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
   data:
     web:
       pageable:
