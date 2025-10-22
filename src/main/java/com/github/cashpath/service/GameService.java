@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 public interface GameService {
-    String playerMove(Long gameId);
+    void playerMove(Long gameId);
 
     Game createGame(List<Player> players);
 

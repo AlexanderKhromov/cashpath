@@ -6,6 +6,7 @@ import com.github.cashpath.repository.*;
 import com.github.cashpath.service.GameService;
 import com.github.cashpath.util.RandomGeneratorUtil;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import java.util.Random;
 @Transactional(readOnly = true)
 @Service
 @AllArgsConstructor
+@Log4j2
 public class GameServiceImpl implements GameService {
     public static final int MONTH_DAYS = 30;
     private final GameRepository gameRepository;
@@ -23,10 +25,10 @@ public class GameServiceImpl implements GameService {
     private final OpportunityCardRepository cardRepository;
 
     @Transactional
-    public String playerMove(Long gameId) {
+    public void playerMove(Long gameId) {
         Game game = gameRepository.findById(gameId).orElseThrow();
         List<Player> players = game.getPlayers();
-        if (players.isEmpty()) return "There is no players in the game";
+        if (players.isEmpty()) return;
 
         Player current = players.get(game.getCurrentTurn());
 
@@ -38,7 +40,7 @@ public class GameServiceImpl implements GameService {
         List<OpportunityCard> cards = cardRepository.findAll();
         OpportunityCard card = cards.get(new Random().nextInt(cards.size()));
 
-        String log = "The card was: " + card.getDescription() + ". ";
+        log.info("The card was: " + card.getDescription() + ". ");
 
         // Simple decision: if type is SMALL_DEAL or BIG_DEAL, suggest to buy
         if (card.getType() == OpportunityCard.OpportunityType.SMALL_DEAL || card.getType() == OpportunityCard.OpportunityType.BIG_DEAL) {
@@ -46,28 +48,32 @@ public class GameServiceImpl implements GameService {
                 current.setCash(current.getCash() - card.getAsset().getPrice());
                 card.getAsset().setOwner(current);
                 assetRepository.save(card.getAsset());
-                log += "An asset was bought: " + card.getAsset().getName() + " за " + card.getAsset().getPrice();
+                log.info("An asset was bought: " + card.getAsset().getName() + " за " + card.getAsset().getPrice());
             } else {
-                log += "Not enough money to buy.";
+                log.info("Not enough money to buy.");
             }
         } else if (card.getType() == OpportunityCard.OpportunityType.DOODAD) {
             // spend money
             current.setCash(current.getCash() - card.getAmount());
-            log += "Doodad spend: " + card.getAmount();
+            log.info("Doodad spend: " + card.getAmount());
         }
 
         // Update the cash of a player taking into account salary, passiveIncome и expenses
         double cashFlow = Math.round((current.getSalary() + passiveIncome - current.getMonthlyExpenses()) / MONTH_DAYS);
         current.setCash(current.getCash() + cashFlow);
-        log += " | CashFlow of this move: " + cashFlow;
+        log.info("CashFlow of this move: " + cashFlow);
 
         playerRepository.save(current);
 
+        if (current.getCash() < 0) {
+            game.setStatus(Game.GameStatus.FINISHED);
+            log.info("Player went bankrupt!");
+        }
         // switch the move
         game.setCurrentTurn((game.getCurrentTurn() + 1) % players.size());
+        game.setCurrentDay(game.getCurrentDay().plusDays(1));
         gameRepository.save(game);
 
-        return current.getName() + " moved. " + log;
     }
 
     @Transactional

@@ -1,10 +1,8 @@
 package com.github.cashpath.controller.ui;
 
-import com.github.cashpath.exception.GameNotFoundException;
 import com.github.cashpath.model.entity.Asset;
 import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.Player;
-import com.github.cashpath.repository.GameRepository;
 import com.github.cashpath.service.GameService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -47,10 +44,11 @@ public class UIController {
                 .toList());
         return "game/game-board";
     }
-
+    /*
     @PostMapping("/game/{id}/next-turn")
     public String nextTurn(@PathVariable Long id) {
         String log = gameService.playerMove(id);
         return "redirect:/game/" + id + "?log=" + log;
     }
+     */
 }
