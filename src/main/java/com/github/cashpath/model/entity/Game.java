@@ -18,7 +18,7 @@ public class Game {
     private Long id;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Player> players;
+    private List<Player> players = new ArrayList<>();
 
     @Column(name = "current_turn")
     private int currentTurn;
@@ -37,9 +37,6 @@ public class Game {
 
     public void addPlayer(Player player) {
         player.setGame(this);
-        if (players == null) {
-            players = new ArrayList<>();
-        }
         players.add(player);
     }
 }

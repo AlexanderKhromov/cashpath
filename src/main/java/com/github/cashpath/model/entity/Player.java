@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -28,10 +29,10 @@ public class Player {
     private boolean onFastTrack;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Asset> assets;
+    private List<Asset> assets = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Liability> liabilities;
+    private List<Liability> liabilities = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(nullable = false, name = "game_id")
