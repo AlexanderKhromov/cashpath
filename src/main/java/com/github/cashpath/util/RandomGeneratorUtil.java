@@ -23,16 +23,15 @@ public class RandomGeneratorUtil {
         return 15000 + random.nextInt(45001);// 15000–60000
     }
 
-    private double generateRandomMonthlyExpenses(double salary) {
-        //return salary * (0.5 + (random.nextDouble() * 0.2 - 0.1)); // 50% ±10%
-        return salary * (random.nextDouble() * 0.2 - 0.1); // ±10%
+    private double generateRandomMonthlyExpensePercent() {
+        return random.nextDouble(0.1) + 0.01; // ±11%
     }
 
     private List<Liability> generateRandomInitialLiabilities(double salary) {
         List<Liability> result = new ArrayList<>();
         result.add(createLiability("Жилье", salary, 0.40));
-        result.add(createLiability("Кредитная карта", salary, generateRandomMonthlyExpenses(salary)));
-        result.add(createLiability(getRandomItem(), salary, generateRandomMonthlyExpenses(salary)));
+        result.add(createLiability("Кредитная карта", salary, generateRandomMonthlyExpensePercent()));
+        result.add(createLiability(getRandomItem(), salary, generateRandomMonthlyExpensePercent()));
         return result;
     }
 
