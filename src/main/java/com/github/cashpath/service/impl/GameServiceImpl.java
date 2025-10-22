@@ -74,8 +74,8 @@ public class GameServiceImpl implements GameService {
         Game game = new Game();
         game.setStatus(Game.GameStatus.ACTIVE);
 
-        RandomGeneratorUtil randomGeneratorUtil = new RandomGeneratorUtil();
         for (Player player : players) {
+            RandomGeneratorUtil randomGeneratorUtil = new RandomGeneratorUtil();
             player.setSalary(randomGeneratorUtil.getSalary());
             player.setCash(0);
 
