@@ -7,9 +7,9 @@ import com.github.cashpath.repository.GameRepository;
 import com.github.cashpath.repository.PlayerRepository;
 import com.github.cashpath.service.GameService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 @RestController
@@ -49,8 +49,9 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/move")
-    public String move(@PathVariable Long gameId) {
-        return gameService.playerMove(gameId);
+    public ResponseEntity<Void> move(@PathVariable Long gameId) {
+        gameService.playerMove(gameId);
+        return ResponseEntity.ok().build();
     }
 
 }
