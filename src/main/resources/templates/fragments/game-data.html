@@ -1,0 +1,41 @@
+<!-- -*- coding: utf-8 -*- -->
+<div th:fragment="game-data"
+     xmlns:th="http://www.thymeleaf.org"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.thymeleaf.org">
+
+    <h3>День <span th:text="${game.currentDay}"></span>
+        <span th:if="${#lists.isEmpty(game.players)}">Нет игроков</span>
+        <span th:unless="${#lists.isEmpty(game.players)}">
+            Ход игрока: <span th:text="${game.players[game.currentTurn].name}"></span>
+        </span>
+    </h3>
+
+    <div class="clearfix">
+        <div th:each="player, iterStat : ${game.players}"
+             th:class="'player-card ' + (${iterStat.index} == ${game.currentTurn} ? 'active' : '')">
+
+            <h2 th:text="${player.name}"></h2>
+            <p>💰 Наличные: <b th:text="${#numbers.formatDecimal(player.cash, 1, 2)}"></b> ₴</p>
+            <p>💼 Зарплата: <b th:text="${#numbers.formatDecimal(player.salary, 1, 2)}"></b> ₴</p>
+            <p>📉 Ежемесячные расходы: <b th:text="${#numbers.formatDecimal(player.monthlyExpenses, 1, 2)}"></b> ₴</p>
+            <p>📈 Пассивный доход: <b th:text="${#numbers.formatDecimal(passiveIncomes[iterStat.index], 1, 2)}"></b> ₴</p>
+
+            <h4>Пассивы:</h4>
+            <table>
+                <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Платёж</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${player.liabilities}">
+                    <td th:text="${p.name}"></td>
+                    <td th:text="${#numbers.formatDecimal(p.monthlyPayment, 1, 2)}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

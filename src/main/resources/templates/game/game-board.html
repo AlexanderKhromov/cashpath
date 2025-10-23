@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en,ru">
 <head>
     <meta charset="UTF-8">
     <title>CashPath — Игровое поле</title>
@@ -19,7 +19,23 @@
         .clearfix::after { content: ""; clear: both; display: table; }
     </style>
 </head>
-<script>
+
+<body>
+
+<h1>CashPath — Игровое поле</h1>
+<div id="gameContainer" th:replace="~{fragments/game-data :: game-data}"></div>
+
+<!-- Кнопка активного игрока -->
+<div style="margin-top: 20px;">
+    <button id="endTurnBtn" class="btn">Закончить ход</button>
+</div>
+
+<!-- Лог -->
+<div th:if="${log}" class="log-box">
+    <h3>🧾 Результат последнего хода:</h3>
+    <div th:text="${log}"></div>
+</div>
+<script th:inline="javascript">
     document.getElementById('endTurnBtn').addEventListener('click', function() {
         const gameId = /*[[${game.id}]]*/ 0;
 
@@ -38,21 +54,5 @@
             .catch(err => alert(err.message));
     });
 </script>
-<body>
-
-<h1>CashPath — Игровое поле</h1>
-<div id="gameContainer" th:replace="fragments/game-data :: game-data"></div>
-
-<!-- Кнопка активного игрока -->
-<div style="margin-top: 20px;">
-    <button id="endTurnBtn" class="btn">Закончить ход</button>
-</div>
-
-<!-- Лог -->
-<div th:if="${log}" class="log-box">
-    <h3>🧾 Результат последнего хода:</h3>
-    <div th:text="${log}"></div>
-</div>
-
 </body>
 </html>
