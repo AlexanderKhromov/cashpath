@@ -26,7 +26,7 @@ public class GameServiceImpl implements GameService {
 
     @Transactional
     public void playerMove(Long gameId) {
-        Game game = gameRepository.findById(gameId).orElseThrow();
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
         List<Player> players = game.getPlayers();
         if (players.isEmpty()) return;
 
@@ -36,6 +36,7 @@ public class GameServiceImpl implements GameService {
         double passiveIncome = current.getAssets().stream()
                 .mapToDouble(Asset::getMonthlyCashFlow).sum();
 
+        //TODO logic is wrong
         // Give a random card
         List<OpportunityCard> cards = cardRepository.findAll();
         OpportunityCard card = cards.get(new Random().nextInt(cards.size()));
