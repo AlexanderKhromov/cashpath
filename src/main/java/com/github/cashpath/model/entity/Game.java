@@ -17,7 +17,7 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Player> players = new ArrayList<>();
 
     @Column(name = "current_turn")
@@ -30,7 +30,6 @@ public class Game {
     @Column(nullable = false)
     private GameStatus status;
 
-    @SuppressWarnings("unused")
     public enum GameStatus {
         ACTIVE, FINISHED
     }
