@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -25,11 +26,12 @@ public class UIController {
     }
 
     @PostMapping("/create-game")
-    public String createGame() {
+    public String createGame(@RequestParam("player1") String player1Name,
+                             @RequestParam("player2") String player2Name) {
         Player p1 = new Player();
-        p1.setName("Игрок 1");
+        p1.setName(player1Name != null && !player1Name.isBlank() ? player1Name.trim() : "Игрок 1");
         Player p2 = new Player();
-        p2.setName("Игрок 2");
+        p2.setName(player2Name != null && !player2Name.isBlank() ? player2Name.trim() : "Игрок 2");
         Game game = gameService.createGame(List.of(p1, p2));
         return "redirect:/game/" + game.getId();
     }
