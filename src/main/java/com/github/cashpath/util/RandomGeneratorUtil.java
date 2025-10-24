@@ -18,7 +18,7 @@ public class RandomGeneratorUtil {
     public RandomGeneratorUtil() {
         this.salary = generateRandomSalary();
         this.liabilities = generateRandomInitialLiabilities(salary);
-        this.cash = salary * generateRandomPercent(100);
+        this.cash = salary * generateRandomPercent(1);
     }
 
     private double generateRandomSalary() {
