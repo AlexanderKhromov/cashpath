@@ -1,6 +1,7 @@
 package com.github.cashpath.service.impl;
 
 import com.github.cashpath.exception.GameNotFoundException;
+import com.github.cashpath.exception.PlayerNotFoundException;
 import com.github.cashpath.model.entity.*;
 import com.github.cashpath.repository.*;
 import com.github.cashpath.service.GameService;
@@ -28,7 +29,7 @@ public class GameServiceImpl implements GameService {
     public void playerMove(Long gameId) {
         Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
         List<Player> players = game.getPlayers();
-        if (players.isEmpty()) return;
+        if (players.isEmpty()) throw new PlayerNotFoundException();
 
         Player current = players.get(game.getCurrentTurn());
 
@@ -41,7 +42,7 @@ public class GameServiceImpl implements GameService {
         List<OpportunityCard> cards = cardRepository.findAll();
         OpportunityCard card = cards.get(new Random().nextInt(cards.size()));
 
-        log.info("The card was: " + card.getDescription() + ". ");
+        log.info("The card was: {}. ", card.getDescription());
 
         // Simple decision: if type is SMALL_DEAL or BIG_DEAL, suggest to buy
         if (card.getType() == OpportunityCard.OpportunityType.SMALL_DEAL || card.getType() == OpportunityCard.OpportunityType.BIG_DEAL) {
@@ -49,20 +50,20 @@ public class GameServiceImpl implements GameService {
                 current.setCash(current.getCash() - card.getAsset().getPrice());
                 card.getAsset().setOwner(current);
                 assetRepository.save(card.getAsset());
-                log.info("An asset was bought: " + card.getAsset().getName() + " за " + card.getAsset().getPrice());
+                log.info("An asset was bought: {} за {}", card.getAsset().getName(), card.getAsset().getPrice());
             } else {
                 log.info("Not enough money to buy.");
             }
         } else if (card.getType() == OpportunityCard.OpportunityType.DOODAD) {
             // spend money
             current.setCash(current.getCash() - card.getAmount());
-            log.info("Doodad spend: " + card.getAmount());
+            log.info("Doodad spend: {}", card.getAmount());
         }
 
         // Update the cash of a player taking into account salary, passiveIncome и expenses
         double cashFlow = Math.round((current.getSalary() + passiveIncome - current.getMonthlyExpenses()) / MONTH_DAYS);
         current.setCash(current.getCash() + cashFlow);
-        log.info("CashFlow of this move: " + cashFlow);
+        log.info("CashFlow of this move: {}", cashFlow);
 
         playerRepository.save(current);
 
