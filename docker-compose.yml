@@ -51,8 +51,42 @@ services:
     networks:
       - cashpath_net
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: cashpath_prometheus
+    restart: always
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus       #for saving metrics
+    ports:
+      - "9090:9090"
+    networks:
+      - cashpath_net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: cashpath_grafana
+    restart: always
+    user: "472"  # important: Grafana does not allow root in new versions
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+    volumes:
+      - grafana_data:/var/lib/grafana         # for saving dashboards
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - cashpath_net
+
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   cashpath_net:
