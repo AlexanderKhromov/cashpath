@@ -17,6 +17,32 @@
         button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #0056b3; }
         .clearfix::after { content: ""; clear: both; display: table; }
+
+        .spinner {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .spinner div {
+            width: 12px; height: 12px;
+            background-color: #007bff;
+            border-radius: 100%;
+            display: inline-block;
+            animation: bouncedelay 1.4s infinite ease-in-out both;
+        }
+        .spinner .bounce1 { animation-delay: -0.32s; }
+        .spinner .bounce2 { animation-delay: -0.16s; }
+        @keyframes bouncedelay {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+        .fade-in {
+            opacity: 0;
+            transition: opacity 0.6s ease-in;
+        }
+        .fade-in.visible {
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -30,28 +56,75 @@
     <button id="endTurnBtn" class="btn">Закончить ход</button>
 </div>
 
+<div id="loadingSpinner" class="spinner">
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+    <p>Загрузка данных...</p>
+</div>
+
 <!-- Лог -->
 <div th:if="${log}" class="log-box">
     <h3>🧾 Результат последнего хода:</h3>
     <div th:text="${log}"></div>
 </div>
+
 <script th:inline="javascript">
-    document.getElementById('endTurnBtn').addEventListener('click', function() {
+    document.addEventListener("DOMContentLoaded", () => {
+        const endTurnBtn = document.getElementById('endTurnBtn');
+        const gameContainer = document.getElementById('gameContainer');
+        const spinner = document.getElementById('loadingSpinner');
         const gameId = /*[[${game.id}]]*/ 0;
 
-        fetch(`/api/games/${gameId}/move`, { method: 'POST' })
-            .then(response => {
-                if (!response.ok) throw new Error('Ошибка при завершении хода');
-                return fetch(`/game/${gameId}`); // запрашиваем обновлённые данные
-            })
-            .then(response => response.text())
-            .then(html => {
+        // 🔹 Async function of updating data
+        async function updateGameData() {
+            try {
+                const response = await fetch(`/game/${gameId}`);
+                if (!response.ok) throw new Error('Ошибка при загрузке данных игры');
+
+                const html = await response.text();
                 const parser = new DOMParser();
                 const newDoc = parser.parseFromString(html, 'text/html');
                 const newData = newDoc.querySelector('#gameContainer');
-                document.querySelector('#gameContainer').innerHTML = newData.innerHTML;
-            })
-            .catch(err => alert(err.message));
+
+                if (newData && gameContainer) {
+                    gameContainer.classList.remove('visible');
+                    setTimeout(() => {
+                        gameContainer.innerHTML = newData.innerHTML;
+                        gameContainer.classList.add('visible');
+                    }, 100); // short delay for transition
+                    gameContainer.innerHTML = newData.innerHTML;
+                } else {
+                    console.warn('⚠️ Элемент #gameContainer не найден в ответе сервера');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Ошибка при обновлении данных игры: ' + err.message);
+            }
+        }
+
+        // 🔹 Async await with indicator
+        endTurnBtn.addEventListener('click', async () => {
+            try {
+                endTurnBtn.disabled = true;
+                endTurnBtn.textContent = '⏳ Завершаем ход...';
+                spinner.style.display = 'block'; // 🔹 show spinner
+
+                const response = await fetch(`/api/games/${gameId}/move`, { method: 'POST' });
+                if (!response.ok) throw new Error('Ошибка при завершении хода');
+
+                // 🔹 wait for updates from server then update UI
+                await updateGameData();
+
+            } catch (err) {
+                console.error(err);
+                alert(err.message);
+            } finally {
+                spinner.style.display = 'none'; // 🔹 hide spinner
+                endTurnBtn.disabled = false;
+                endTurnBtn.textContent = 'Закончить ход';
+            }
+        });
     });
 </script>
 </body>
