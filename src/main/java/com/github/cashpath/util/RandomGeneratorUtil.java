@@ -3,9 +3,7 @@ package com.github.cashpath.util;
 import com.github.cashpath.model.entity.Liability;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Getter
 public class RandomGeneratorUtil {
@@ -13,7 +11,7 @@ public class RandomGeneratorUtil {
     private final Random random = new Random();
     private final double salary;
     private final double cash;
-    private final List<Liability> liabilities;
+    private final Set<Liability> liabilities;
 
     public RandomGeneratorUtil() {
         this.salary = generateRandomSalary();
@@ -29,10 +27,10 @@ public class RandomGeneratorUtil {
         return random.nextDouble(bound) + 0.01; // ±11%
     }
 
-    private List<Liability> generateRandomInitialLiabilities(double salary) {
-        List<Liability> result = new ArrayList<>();
+    private Set<Liability> generateRandomInitialLiabilities(double salary) {
+        Set<Liability> result = new HashSet<>();
         result.add(createLiability("Жилье", salary, 0.40));
-        result.add(createLiability("Кредитная карта", salary, generateRandomPercent(0.1)));
+        result.add(createLiability("Кредитная карта", salary, generateRandomPercent(0.2)));
         result.add(createLiability(getRandomItem(), salary, generateRandomPercent(0.1)));
         return result;
     }

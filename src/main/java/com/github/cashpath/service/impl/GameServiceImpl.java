@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Random;
+import java.util.Set;
 
 @Transactional(readOnly = true)
 @Service
@@ -26,29 +26,26 @@ public class GameServiceImpl implements GameService {
     private final OpportunityCardRepository cardRepository;
 
     @Transactional
+    @Override
     public void playerMove(Long gameId) {
-        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+        Game game = gameRepository.findWithPlayersAndAssetsById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
         List<Player> players = game.getPlayers();
         if (players.isEmpty()) throw new PlayerNotFoundException();
 
-        Player current = players.get(game.getCurrentTurn());
+        Player player = players.get(game.getCurrentTurn());
 
         // Calculate passive income
-        double passiveIncome = current.getAssets().stream()
+        double passiveIncome = player.getAssets().stream()
                 .mapToDouble(Asset::getMonthlyCashFlow).sum();
 
-        //TODO logic is wrong
-        // Give a random card
-        List<OpportunityCard> cards = cardRepository.findAll();
-        OpportunityCard card = cards.get(new Random().nextInt(cards.size()));
-
+        OpportunityCard card = cardRepository.findRandomAvailableCard();
         log.info("The card was: {}. ", card.getDescription());
 
         // Simple decision: if type is SMALL_DEAL or BIG_DEAL, suggest to buy
         if (card.getType() == OpportunityCard.OpportunityType.SMALL_DEAL || card.getType() == OpportunityCard.OpportunityType.BIG_DEAL) {
-            if (card.getAsset() != null && current.getCash() >= card.getAsset().getPrice()) {
-                current.setCash(current.getCash() - card.getAsset().getPrice());
-                card.getAsset().setOwner(current);
+            if (card.getAsset() != null && player.getCash() >= card.getAsset().getPrice()) {
+                player.setCash(player.getCash() - card.getAsset().getPrice());
+                card.getAsset().setOwner(player);
                 assetRepository.save(card.getAsset());
                 log.info("An asset was bought: {} за {}", card.getAsset().getName(), card.getAsset().getPrice());
             } else {
@@ -56,18 +53,18 @@ public class GameServiceImpl implements GameService {
             }
         } else if (card.getType() == OpportunityCard.OpportunityType.DOODAD) {
             // spend money
-            current.setCash(current.getCash() - card.getAmount());
+            player.setCash(player.getCash() - card.getAmount());
             log.info("Doodad spend: {}", card.getAmount());
         }
 
         // Update the cash of a player taking into account salary, passiveIncome и expenses
-        double cashFlow = Math.round((current.getSalary() + passiveIncome - current.getMonthlyExpenses()) / MONTH_DAYS);
-        current.setCash(current.getCash() + cashFlow);
+        double cashFlow = Math.round((player.getSalary() + passiveIncome - player.getMonthlyExpenses()) / MONTH_DAYS);
+        player.setCash(player.getCash() + cashFlow);
         log.info("CashFlow of this move: {}", cashFlow);
 
-        playerRepository.save(current);
+        playerRepository.save(player);
 
-        if (current.getCash() < 0) {
+        if (player.getCash() < 0) {
             game.setStatus(Game.GameStatus.FINISHED);
             log.info("Player went bankrupt!");
         }
@@ -83,18 +80,21 @@ public class GameServiceImpl implements GameService {
     public Game createGame(List<Player> players) {
         Game game = new Game();
         game.setStatus(Game.GameStatus.ACTIVE);
+        //game.setCurrentDay(1);
+        game.setCurrentTurn(0);
 
         for (Player player : players) {
             RandomGeneratorUtil randomGeneratorUtil = new RandomGeneratorUtil();
             player.setSalary(randomGeneratorUtil.getSalary());
             player.setCash(randomGeneratorUtil.getCash());
 
-            List<Liability> liabilities = randomGeneratorUtil.getLiabilities();
+            Set<Liability> liabilities = randomGeneratorUtil.getLiabilities();
             liabilities.forEach(e -> e.setOwner(player));
             player.setLiabilities(liabilities);
 
-            player.setMonthlyExpenses(liabilities.stream()
-                    .mapToDouble(Liability::getMonthlyPayment).sum());
+            double monthlyExpenses = liabilities.stream()
+                    .mapToDouble(Liability::getMonthlyPayment).sum();
+            player.setMonthlyExpenses(monthlyExpenses);
             game.addPlayer(player);
         }
         return gameRepository.save(game);
