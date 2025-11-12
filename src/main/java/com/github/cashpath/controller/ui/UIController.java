@@ -46,11 +46,5 @@ public class UIController {
                 .toList());
         return "game/game-board";
     }
-    /*
-    @PostMapping("/game/{id}/next-turn")
-    public String nextTurn(@PathVariable Long id) {
-        String log = gameService.playerMove(id);
-        return "redirect:/game/" + id + "?log=" + log;
-    }
-     */
+
 }

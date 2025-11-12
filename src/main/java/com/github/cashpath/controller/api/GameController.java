@@ -19,12 +19,6 @@ public class GameController {
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
     private final GameService gameService;
-/*
-    @PostMapping
-    public Game createGame() {
-        return gameService.createGame();
-    }
- */
 
     @PostMapping("/{gameId}/players")
     public Player addPlayer(@PathVariable Long gameId, @RequestBody Map<String, String> body) {

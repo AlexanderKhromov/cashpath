@@ -7,13 +7,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 public class PageController {
-    /*
-
-    @GetMapping("/")
-    public String index() {
-        return "index"; // templates/index.html
-    }
-     */
 
     // Testing endpoints for simulation errors
     @GetMapping("/error400")
