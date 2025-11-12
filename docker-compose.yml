@@ -26,6 +26,7 @@ services:
     volumes:
       - ./src:/app/src            # mount sources
       - ./pom.xml:/app/pom.xml    # if needed
+      - ./logs:/logs
     command: mvn spring-boot:run  # to run from command line ("docker compose build" then "docker compose up -d")
                                   # or "docker compose up -d --build"
     container_name: cashpath_app
@@ -44,6 +45,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       SPRING_FLYWAY_ENABLED: true
       SPRING_FLYWAY_LOCATIONS: classpath:db/migration
+      SPRING_PROFILES_ACTIVE: dev
     env_file:
       - ".env" # Injects all variables from .env into the webapp container
     ports:

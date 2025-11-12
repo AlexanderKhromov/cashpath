@@ -49,8 +49,20 @@ server:
     whitelabel:
       enabled: false
 logging:
+  file:
+    name: /logs/app.log       # path in container
+  logback:
+    rolling-policy:
+      file-name-pattern: /logs/app-%d{yyyy-MM-dd}.%i.log
+      max-file-size: 10MB
+      total-size-cap: 100MB
+      max-history: 14
   level:
     org.hibernate.type.descriptor.sql: DEBUG
+    root: INFO                # common log level
+    org.springframework: INFO # may be DEBUG for fewer details
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 management: #for actuator
   endpoints:
     web:
