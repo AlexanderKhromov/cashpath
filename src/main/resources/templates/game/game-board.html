@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en,ru">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>CashPath — Игровое поле</title>
@@ -43,16 +43,29 @@
         .fade-in.visible {
             opacity: 1;
         }
+        .active-player-name {
+            font-weight: bold;
+            font-size: 1.4em;
+        }
     </style>
 </head>
 
 <body>
 
 <h1>CashPath — Игровое поле</h1>
-<div id="gameContainer" th:replace="~{fragments/game-data :: game-data}"></div>
 
-<!-- Кнопка активного игрока -->
+<!-- adding Thymeleaf-fragment with full players info -->
+<div id="gameContainer" class="fade-in visible" th:replace="~{fragments/game-data :: game-data(
+         game=${game},
+         opportunityCard=${opportunityCard},
+         passiveIncomes=${passiveIncomes}
+     )}">
+</div>
+
 <div style="margin-top: 20px;">
+    <button id="buyBtn" class="btn">Сделать покупку</button>
+</div>
+<div style="margin-top: 10px;">
     <button id="endTurnBtn" class="btn">Закончить ход</button>
 </div>
 
@@ -63,7 +76,7 @@
     <p>Загрузка данных...</p>
 </div>
 
-<!-- Лог -->
+<!-- Log -->
 <div th:if="${log}" class="log-box">
     <h3>🧾 Результат последнего хода:</h3>
     <div th:text="${log}"></div>
@@ -71,58 +84,94 @@
 
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", () => {
-        const endTurnBtn = document.getElementById('endTurnBtn');
         const gameContainer = document.getElementById('gameContainer');
+        const buyBtn = document.getElementById('buyBtn');
+        const endTurnBtn = document.getElementById('endTurnBtn');
         const spinner = document.getElementById('loadingSpinner');
         const gameId = /*[[${game.id}]]*/ 0;
+        let cardId = /*[[${opportunityCard != null ? opportunityCard.id : -1}]]*/ -1;
 
-        // 🔹 Async function of updating data
-        async function updateGameData() {
-            try {
-                const response = await fetch(`/game/${gameId}`);
-                if (!response.ok) throw new Error('Ошибка при загрузке данных игры');
+         // logging for debug purposes
+        console.log("DOMContentLoaded:");
+        console.log("gameContainer:", gameContainer);
+        console.log("buyBtn:", buyBtn);
+        console.log("endTurnBtn:", endTurnBtn);
+        console.log("spinner:", spinner);
+        console.log("gameId:", gameId);
 
-                const html = await response.text();
-                const parser = new DOMParser();
-                const newDoc = parser.parseFromString(html, 'text/html');
-                const newData = newDoc.querySelector('#gameContainer');
-
-                if (newData && gameContainer) {
-                    gameContainer.classList.remove('visible');
-                    setTimeout(() => {
-                        gameContainer.innerHTML = newData.innerHTML;
-                        gameContainer.classList.add('visible');
-                    }, 100); // short delay for transition
-                    gameContainer.innerHTML = newData.innerHTML;
-                } else {
-                    console.warn('⚠️ Элемент #gameContainer не найден в ответе сервера');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Ошибка при обновлении данных игры: ' + err.message);
+        function updateGame(data) {
+            // logging for debug purposes
+            console.log("updateGame called:");
+            console.log("data:", data);
+            console.log("cardId before update:", cardId);
+            if (data.card) {
+                cardId = data.card.id;
+            }else {
+                cardId = -1;
             }
+            // logging for debug purposes
+            console.log("cardId after update:", cardId);
         }
 
-        // 🔹 Async await with indicator
-        endTurnBtn.addEventListener('click', async () => {
+        buyBtn.addEventListener('click', async () => {
+            // logging for debug purposes
+            console.log("buyBtn clicked");
+            console.log("gameContainer at click:", gameContainer);
             try {
-                endTurnBtn.disabled = true;
-                endTurnBtn.textContent = '⏳ Завершаем ход...';
-                spinner.style.display = 'block'; // 🔹 show spinner
+                buyBtn.disabled = true;
+                buyBtn.textContent = '⏳ Завершаем ход...';
+                spinner.style.display = 'block';
 
-                const response = await fetch(`/api/games/${gameId}/move`, { method: 'POST' });
-                if (!response.ok) throw new Error('Ошибка при завершении хода');
+                // logging for debug purposes
+                console.log("parsed cardId:", cardId);
+                if (cardId < 0) {
+                    alert("❗ Нет доступной карты для покупки");
+                    return;
+                }
+                // logging for debug purposes
+                console.log("in buyBtn_click: ", cardId);
+                const response = await fetch(`/api/games/${gameId}/buy`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cardId })
+                });
 
-                // 🔹 wait for updates from server then update UI
-                await updateGameData();
+                if (!response.ok) throw new Error('Ошибка при совершении покупки');
+                const data = await response.json();
+                // logging for debug purposes
+                console.log("response data:", data);
+                updateGame(data);
 
+                if (data.finished) alert("🏁 Игра окончена! Победитель: " + data.winner);
             } catch (err) {
                 console.error(err);
                 alert(err.message);
             } finally {
-                spinner.style.display = 'none'; // 🔹 hide spinner
+                spinner.style.display = 'none';
+                buyBtn.disabled = false;
+                buyBtn.textContent = 'Сделать покупку';
+            }
+        });
+
+        endTurnBtn.addEventListener('click', async () => {
+            // logging for debug purposes
+            console.log("endTurnBtn clicked");
+            try {
+                endTurnBtn.disabled = true;
+                spinner.style.display = 'block';
+
+                const response = await fetch(`/api/games/${gameId}/end-turn`, { method: 'POST' });
+                if (!response.ok) throw new Error('Ошибка при завершении хода');
+                const data = await response.json();
+                // logging for debug purposes
+                console.log("end-turn response data:", data);
+                updateGame(data);
+            } catch (err) {
+                console.error(err);
+                alert(err.message);
+            } finally {
+                spinner.style.display = 'none';
                 endTurnBtn.disabled = false;
-                endTurnBtn.textContent = 'Закончить ход';
             }
         });
     });

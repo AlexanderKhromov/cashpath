@@ -1,11 +1,15 @@
 package com.github.cashpath.service.impl;
 
 import com.github.cashpath.exception.GameNotFoundException;
+import com.github.cashpath.exception.OpportunityCardNotFoundException;
 import com.github.cashpath.exception.PlayerNotFoundException;
+import com.github.cashpath.model.dto.BuyRequestDTO;
+import com.github.cashpath.model.dto.MoveResponseDTO;
 import com.github.cashpath.model.entity.*;
+import com.github.cashpath.model.mapper.MoveResponseMapper;
 import com.github.cashpath.repository.*;
 import com.github.cashpath.service.GameService;
-import com.github.cashpath.util.RandomGeneratorUtil;
+import com.github.cashpath.util.PlayerInitializer;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -24,55 +28,82 @@ public class GameServiceImpl implements GameService {
     private final PlayerRepository playerRepository;
     private final AssetRepository assetRepository;
     private final OpportunityCardRepository cardRepository;
+    private final PlayerInitializer playerInitializer;
+
+    @Override
+    public Game getGame(Long gameId) {
+        return gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+    }
 
     @Transactional
     @Override
-    public void playerMove(Long gameId) {
-        Game game = gameRepository.findWithPlayersAndAssetsById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+    public MoveResponseDTO buy(Long gameId, BuyRequestDTO request) {
+        Game game = getGame(gameId);
         List<Player> players = game.getPlayers();
         if (players.isEmpty()) throw new PlayerNotFoundException();
 
+        if (game.getCurrentTurn() >= players.size()) {
+            throw new IllegalStateException("Invalid currentTurn index");
+        }
         Player player = players.get(game.getCurrentTurn());
 
-        // Calculate passive income
-        double passiveIncome = player.getAssets().stream()
-                .mapToDouble(Asset::getMonthlyCashFlow).sum();
+        Long cardId = request.cardId();
+        OpportunityCard opportunityCardBought = cardRepository.findById(cardId).orElseThrow(() -> new OpportunityCardNotFoundException(cardId));
 
-        OpportunityCard card = cardRepository.findRandomAvailableCard();
-        log.info("The card was: {}. ", card.getDescription());
+        double cardPrice = opportunityCardBought.getAmount();
 
-        // Simple decision: if type is SMALL_DEAL or BIG_DEAL, suggest to buy
-        if (card.getType() == OpportunityCard.OpportunityType.SMALL_DEAL || card.getType() == OpportunityCard.OpportunityType.BIG_DEAL) {
-            if (card.getAsset() != null && player.getCash() >= card.getAsset().getPrice()) {
-                player.setCash(player.getCash() - card.getAsset().getPrice());
-                card.getAsset().setOwner(player);
-                assetRepository.save(card.getAsset());
-                log.info("An asset was bought: {} за {}", card.getAsset().getName(), card.getAsset().getPrice());
-            } else {
-                log.info("Not enough money to buy.");
+        if (player.getCash() < cardPrice) {
+            log.info("Player '{}' does not have enough cash to buy card: {}", player.getName(), opportunityCardBought.getDescription());
+            switchTurn(game);
+            return getMoveResponse(game);
+        }
+        //marking card as already bought
+        opportunityCardBought.markAsUnavailable();
+        opportunityCardBought = cardRepository.save(opportunityCardBought);
+
+        switch (opportunityCardBought.getType()) {
+            case SMALL_DEAL, BIG_DEAL -> {
+                Asset asset = opportunityCardBought.getAsset();
+                if (asset != null) {
+                    asset.setOwner(player);
+                    assetRepository.save(asset);
+                    player.getAssets().add(asset);
+                    log.info("The card was bought: {} by a player: {}", opportunityCardBought.getDescription(), player.getName());
+                } else {
+                    log.error("Something went wrong. DO investigation in code cause asset must be set for SMALL and BIG deals!");
+                }
             }
-        } else if (card.getType() == OpportunityCard.OpportunityType.DOODAD) {
-            // spend money
-            player.setCash(player.getCash() - card.getAmount());
-            log.info("Doodad spend: {}", card.getAmount());
+            case DOODAD -> log.info("Player {} spent {} on DOODAD: {}", player.getName(), cardPrice, opportunityCardBought.getDescription());
+            default -> log.warn("Unknown card type: {}", opportunityCardBought.getType());
         }
 
-        // Update the cash of a player taking into account salary, passiveIncome и expenses
-        double cashFlow = Math.round((player.getSalary() + passiveIncome - player.getMonthlyExpenses()) / MONTH_DAYS);
-        player.setCash(player.getCash() + cashFlow);
-        log.info("CashFlow of this move: {}", cashFlow);
+        double passiveIncome = getPassiveIncome(player);
+        double dailyCashFlow = getDailyCashFlow(player);
+
+        // Update current cash of the player
+        double updatedCash = player.getCash() + dailyCashFlow - cardPrice;
+        player.setCash(updatedCash);
+        log.info("Daily cash flow for {}: {}", player.getName(), dailyCashFlow);
 
         playerRepository.save(player);
 
-        if (player.getCash() < 0) {
+        if (passiveIncome >= player.getMonthlyExpenses()) {
             game.setStatus(Game.GameStatus.FINISHED);
-            log.info("Player went bankrupt!");
+            log.info("Game finished! Player {} won because has passive income {} ≥ monthly expenses {}",
+                    player.getName(), passiveIncome, player.getMonthlyExpenses());
         }
-        // switch the move
-        game.setCurrentTurn((game.getCurrentTurn() + 1) % players.size());
-        game.setCurrentDay(game.getCurrentDay().plusDays(1));
-        gameRepository.save(game);
 
+        switchTurn(game);
+        return getMoveResponse(game);
+    }
+
+    private double getPassiveIncome(Player player) {
+        return player.getAssets().stream().mapToDouble(Asset::getMonthlyCashFlow).sum();
+    }
+
+    private double getDailyCashFlow(Player player) {
+        double passiveIncome = getPassiveIncome(player);
+        return Math.round((player.getSalary() + passiveIncome - player.getMonthlyExpenses()) / MONTH_DAYS);
     }
 
     @Transactional
@@ -80,15 +111,14 @@ public class GameServiceImpl implements GameService {
     public Game createGame(List<Player> players) {
         Game game = new Game();
         game.setStatus(Game.GameStatus.ACTIVE);
-        //game.setCurrentDay(1);
         game.setCurrentTurn(0);
 
         for (Player player : players) {
-            RandomGeneratorUtil randomGeneratorUtil = new RandomGeneratorUtil();
-            player.setSalary(randomGeneratorUtil.getSalary());
-            player.setCash(randomGeneratorUtil.getCash());
+            double salary = playerInitializer.generateRandomSalary();
+            player.setSalary(salary);
+            player.setCash(playerInitializer.generateRandomCash(salary));
+            Set<Liability> liabilities = playerInitializer.generateLiabilities(salary);
 
-            Set<Liability> liabilities = randomGeneratorUtil.getLiabilities();
             liabilities.forEach(e -> e.setOwner(player));
             player.setLiabilities(liabilities);
 
@@ -101,7 +131,24 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game findById(Long id) {
-        return gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException(id));
+    public MoveResponseDTO endTurn(Long gameId) {
+        Game game = getGame(gameId);
+        switchTurn(game);
+        return getMoveResponse(game);
+    }
+
+    private MoveResponseDTO getMoveResponse(Game game) {
+        OpportunityCard nextCard = cardRepository.findRandomAvailableCard();
+        Player currentPlayer = game.getPlayers().get(game.getCurrentTurn());
+        return MoveResponseMapper.toMoveResponseDTO(game, currentPlayer.getName(), currentPlayer.getCash(),getDailyCashFlow(currentPlayer), nextCard);
+    }
+
+    private void switchTurn(Game game) {
+        List<Player> players = game.getPlayers();
+        if (!players.isEmpty()) {
+            game.setCurrentTurn((game.getCurrentTurn() + 1) % players.size());
+            game.setCurrentDay(game.getCurrentDay().plusDays(1));
+            gameRepository.save(game);
+        }
     }
 }

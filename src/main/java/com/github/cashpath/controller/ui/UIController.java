@@ -1,9 +1,13 @@
 package com.github.cashpath.controller.ui;
 
+import com.github.cashpath.model.dto.OpportunityCardDTO;
 import com.github.cashpath.model.entity.Asset;
 import com.github.cashpath.model.entity.Game;
+import com.github.cashpath.model.entity.OpportunityCard;
 import com.github.cashpath.model.entity.Player;
+import com.github.cashpath.model.mapper.OpportunityCardMapper;
 import com.github.cashpath.service.GameService;
+import com.github.cashpath.service.OpportunityCardService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +23,7 @@ import java.util.List;
 public class UIController {
 
     private final GameService gameService;
+    private final OpportunityCardService opportunityCardService;
 
     @GetMapping("/")
     public String index() {
@@ -38,12 +43,15 @@ public class UIController {
 
     @GetMapping("/game/{id}")
     public String gamePage(@PathVariable Long id, Model model) {
-        Game game = gameService.findById(id);
+        Game game = gameService.getGame(id);
+        OpportunityCard opportunityCard = opportunityCardService.getRandomAvailableCard();
+        OpportunityCardDTO dto = OpportunityCardMapper.toOpportunityCardDTO(opportunityCard);
         model.addAttribute("game", game);
         model.addAttribute("passiveIncomes", game.getPlayers().stream()
                 .map(p -> p.getAssets().stream()
                         .mapToDouble(Asset::getMonthlyCashFlow).sum())
                 .toList());
+        model.addAttribute("opportunityCard", dto);
         return "game/game-board";
     }
 

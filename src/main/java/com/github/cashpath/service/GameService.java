@@ -1,8 +1,11 @@
 package com.github.cashpath.service;
 
+import com.github.cashpath.model.dto.BuyRequestDTO;
+import com.github.cashpath.model.dto.MoveResponseDTO;
 import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.Player;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -12,9 +15,12 @@ import java.util.List;
 
 @Service
 public interface GameService {
-    void playerMove(Long gameId);
+
+    Game getGame(Long gameId);
+
+    MoveResponseDTO buy(Long gameId, BuyRequestDTO request);
 
     Game createGame(List<Player> players);
 
-    Game findById(Long id);
+    MoveResponseDTO endTurn(Long gameId);
 }
