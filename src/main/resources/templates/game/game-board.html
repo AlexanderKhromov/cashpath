@@ -55,7 +55,7 @@
 <h1>CashPath — Игровое поле</h1>
 
 <!-- adding Thymeleaf-fragment with full players info -->
-<div id="gameContainer" class="fade-in visible" th:replace="~{fragments/game-data :: game-data(
+<div id="gameBoard" class="fade-in visible" th:replace="~{fragments/game-data :: game-data(
          game=${game},
          opportunityCard=${opportunityCard},
          passiveIncomes=${passiveIncomes}
@@ -84,7 +84,8 @@
 
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", () => {
-        const gameContainer = document.getElementById('gameContainer');
+        const gameBoard = document.getElementById('gameBoard');
+        //const gameContainer = document.getElementById('gameContainer');
         const buyBtn = document.getElementById('buyBtn');
         const endTurnBtn = document.getElementById('endTurnBtn');
         const spinner = document.getElementById('loadingSpinner');
@@ -92,25 +93,39 @@
         let cardId = /*[[${opportunityCard != null ? opportunityCard.id : -1}]]*/ -1;
 
          // logging for debug purposes
-        console.log("DOMContentLoaded:");
-        console.log("gameContainer:", gameContainer);
-        console.log("buyBtn:", buyBtn);
-        console.log("endTurnBtn:", endTurnBtn);
-        console.log("spinner:", spinner);
+        console.log("gameBoard:", gameBoard);
         console.log("gameId:", gameId);
 
         function updateGame(data) {
-            // logging for debug purposes
-            console.log("updateGame called:");
-            console.log("data:", data);
-            console.log("cardId before update:", cardId);
-            if (data.card) {
-                cardId = data.card.id;
-            }else {
-                cardId = -1;
+            console.log("MoveResponseDTO:", data);
+            const playerId = data.currentPlayer.id;
+            // 🔹 Обновляем имя активного игрока
+            // Assuming you have an element with ID "activePlayerName"
+            document.getElementById("activePlayerName").innerText = data.currentPlayer.name;
+            // 🔹 Обновляем кэш игрока
+            // Assuming you have an element with ID "activePlayerCash"
+            document.getElementById("cash_" + playerId).innerText = data.currentPlayer.cash.toFixed(2);
+            // 🔹 Обновляем daily cash flow
+            // Assuming you have an element with ID "activePlayerDaily"
+            document.getElementById("dailyCashFlow_" + playerId).innerText = data.dailyCashFlow.toFixed(2);
+            // 🔹 Обновляем карточку на экране
+            const card = data.currentPlayer.card;
+
+            if (card) {
+                // Assuming you have elements for card details
+                document.getElementById("cardDescription").innerText = card.description;
+                document.getElementById("cardPrice").innerText = card.price.toFixed(2); // Assuming amount is double/int
+                //document.getElementById("cardType").innerText = card.type;
+                cardId = card.id;
             }
-            // logging for debug purposes
-            console.log("cardId after update:", cardId);
+            // 🔹 Если игра закончена – показываем победителя
+            if (data.finished) {
+                alert("Игра окончена! Победитель: " + data.winner);
+                //document.getElementById("buyButton").disabled = true;
+                //document.getElementById("endTurnButton").disabled = true;
+                buyBtn.disabled = true;
+                endTurnBtn.disabled = true;
+            }
         }
 
         buyBtn.addEventListener('click', async () => {

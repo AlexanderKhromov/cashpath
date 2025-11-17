@@ -16,5 +16,5 @@ public class PlayerDTO {
     private double passiveIncome;
     private Set<LiabilityDTO> liabilities;
     private Set<AssetDTO> assets;
-    private OpportunityCardDTO currentOffer;
+    private OpportunityCardDTO card;
 }

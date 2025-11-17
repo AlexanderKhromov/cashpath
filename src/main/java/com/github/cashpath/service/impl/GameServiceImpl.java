@@ -140,7 +140,7 @@ public class GameServiceImpl implements GameService {
     private MoveResponseDTO getMoveResponse(Game game) {
         OpportunityCard nextCard = cardRepository.findRandomAvailableCard();
         Player currentPlayer = game.getPlayers().get(game.getCurrentTurn());
-        return MoveResponseMapper.toMoveResponseDTO(game, currentPlayer.getName(), currentPlayer.getCash(),getDailyCashFlow(currentPlayer), nextCard);
+        return MoveResponseMapper.toMoveResponseDTO(game, currentPlayer, getDailyCashFlow(currentPlayer), nextCard);
     }
 
     private void switchTurn(Game game) {

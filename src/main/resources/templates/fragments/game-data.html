@@ -1,15 +1,17 @@
 <!-- -*- coding: utf-8 -*- -->
 <div id="gameContainer"
      th:fragment="game-data (game, opportunityCard, passiveIncomes)"
+     data-game-id="${game.id}"
      th:attr="data-current-card-id=${opportunityCard != null ? opportunityCard.id : -1}"
      xmlns:th="http://www.thymeleaf.org"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="http://www.thymeleaf.org">
 
-    <h3>День <span th:text="${game.currentDay}"></span>
+    <h3>День <span id="currentDay" th:text="${game.currentDay}"></span>
         <span th:if="${#lists.isEmpty(game.players)}">Нет игроков</span>
         <span th:unless="${#lists.isEmpty(game.players)}">
-            Ход игрока: <span th:text="${game.players[game.currentTurn].name}"></span>
+            Ход игрока:
+            <span id="activePlayerName" th:text="${game.players[game.currentTurn].name}"></span>
         </span>
     </h3>
 
@@ -20,10 +22,11 @@
             <h2 th:text="${player.name}"
                 th:classappend="${iterStat.index} == ${game.currentTurn} ? ' active-player-name' : ''">
             </h2>
-            <p>💰 Наличные: <b th:text="${#numbers.formatDecimal(player.cash, 1, 2)}"></b> ₴</p>
-            <p>💼 Зарплата: <b th:text="${#numbers.formatDecimal(player.salary, 1, 2)}"></b> ₴</p>
-            <p>📉 Ежемесячные расходы: <b th:text="${#numbers.formatDecimal(player.monthlyExpenses, 1, 2)}"></b> ₴</p>
-            <p>📈 Пассивный доход: <b th:text="${#numbers.formatDecimal(passiveIncomes[iterStat.index], 1, 2)}"></b> ₴</p>
+            <p>💰 Наличные: <b th:id="'cash_' + ${player.id}" th:text="${#numbers.formatDecimal(player.cash, 1, 2)}"></b> ₴</p>
+            <p>💼 Зарплата: <b th:id="'salary_' + ${player.id}" th:text="${#numbers.formatDecimal(player.salary, 1, 2)}"></b> ₴</p>
+            <p>📉 Ежемесячные расходы: <b th:id="'monthlyExpenses_' + ${player.id}" th:text="${#numbers.formatDecimal(player.monthlyExpenses, 1, 2)}"></b> ₴</p>
+            <p>📅 Дневной поток: <b th:id="'dailyCashFlow_' + ${player.id}" th:text="${0}">0</b> ₴</p>
+            <p>📈 Пассивный доход: <b th:id="'passiveIncomes_' + ${player.id}" th:text="${#numbers.formatDecimal(passiveIncomes, 1, 2)}"></b> ₴</p>
 
             <h4>Пассивы:</h4>
             <table>
@@ -42,8 +45,8 @@
             <!-- Current purchase for player -->
             <div th:if="${opportunityCard != null and iterStat.index == game.currentTurn}" style="margin-top:20px;padding:15px;border:2px solid #4CAF50;border-radius:10px;background:#f9fff9;">
                 <h3>🎯 Текущее предложение покупки:</h3>
-                <p><b>Название:</b> <span th:text="${opportunityCard.description}">Название карты</span></p>
-                <p><b>Стоимость:</b> <span th:text="${#numbers.formatDecimal(opportunityCard.price, 1, 2)}">0</span> ₴</p>
+                <p><b>Название:</b> <span id="cardDescription" th:text="${opportunityCard.description}">Название карты</span></p>
+                <p><b>Стоимость:</b> <span id="cardPrice" th:text="${#numbers.formatDecimal(opportunityCard.price, 1, 2)}">0</span> ₴</p>
             </div>
         </div>
     </div>

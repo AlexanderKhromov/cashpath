@@ -2,10 +2,8 @@ package com.github.cashpath.model.dto;
 
 public record MoveResponseDTO(
         Long gameId,
-        String currentPlayer,
-        double cash,
+        PlayerDTO currentPlayer,
         double dailyCashFlow,
-        OpportunityCardDTO card,
         boolean finished,
         String winner
 ){}

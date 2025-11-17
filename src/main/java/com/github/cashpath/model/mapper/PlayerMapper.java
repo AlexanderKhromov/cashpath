@@ -25,7 +25,7 @@ public class PlayerMapper {
         dto.setAssets(player.getAssets().stream()
                 .map(AssetMapper::toAssetDTO)
                 .collect(Collectors.toSet()));
-        dto.setCurrentOffer(OpportunityCardMapper.toOpportunityCardDTO(opportunityCard));
+        dto.setCard(OpportunityCardMapper.toOpportunityCardDTO(opportunityCard));
         return dto;
     }
 }
