@@ -20,8 +20,7 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/buy")
-    public ResponseEntity<MoveResponseDTO> /*CompletableFuture<ResponseEntity<MoveResponseDTO>>*/ buy(@PathVariable Long gameId, @RequestBody BuyRequestDTO request) {
-       // return CompletableFuture.supplyAsync(() -> ResponseEntity.ok(gameService.buy(gameId, request)));
+    public ResponseEntity<MoveResponseDTO> buy(@PathVariable Long gameId, @RequestBody BuyRequestDTO request) {
         MoveResponseDTO response = gameService.buy(gameId, request);
         return ResponseEntity.ok(response);
     }
