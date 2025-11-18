@@ -1,79 +1,67 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>CashPath — Игровое поле</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f8f9fa; }
-        h1 { color: #333; }
-        .player-card {
-            border: 1px solid #ccc; border-radius: 10px;
-            padding: 15px; margin: 10px; background: #fff;
-            width: 45%; float: left;
-        }
-        .active { border-color: #007bff; box-shadow: 0 0 10px rgba(0,123,255,0.3); }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ccc; padding: 5px; text-align: left; }
-        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        .clearfix::after { content: ""; clear: both; display: table; }
-
-        .spinner {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .spinner div {
-            width: 12px; height: 12px;
-            background-color: #007bff;
-            border-radius: 100%;
-            display: inline-block;
-            animation: bouncedelay 1.4s infinite ease-in-out both;
-        }
-        .spinner .bounce1 { animation-delay: -0.32s; }
-        .spinner .bounce2 { animation-delay: -0.16s; }
-        @keyframes bouncedelay {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1.0); }
-        }
-        .fade-in {
-            opacity: 0;
-            transition: opacity 0.6s ease-in;
-        }
-        .fade-in.visible {
-            opacity: 1;
-        }
-        .active-player-name {
-            font-weight: bold;
-            font-size: 1.4em;
-        }
-    </style>
+    <link rel="stylesheet" href="/style.css">
 </head>
-
 <body>
-
 <h1>CashPath — Игровое поле</h1>
 
-<!-- adding Thymeleaf-fragment with full players info -->
-<div id="gameBoard" class="fade-in visible" th:replace="~{fragments/game-data :: game-data(
-         game=${game},
-         opportunityCard=${opportunityCard},
-         passiveIncomes=${passiveIncomes}
-     )}">
+<!-- Showing game page with full players info -->
+<div id="gameContainer">
+    <h3>День: <span th:text="${data.game.currentDay}"></span>
+        <span> Ход игрока: </span>
+        <span id="activePlayerName" th:text="${data.currentPlayer.name}"></span>
+        <span> GameID: </span>
+        <span id="game_Id" th:text="${data.game.id}"></span>
+    </h3>
+
+    <div class="players-row">
+        <div class="player player-card" th:each="player : ${data.players}" th:attr="id='player_' + ${player.id}">
+            <h3 class="playerName" th:text="${player.name}">Игрок</h3>
+            <p>💰 Наличные: <span id="cash_" th:attr="id='cash_' + ${player.id}" th:text="${player.cash}">0.0</span> ₴</p>
+            <p>💼 Зарплата: <b th:text="${#numbers.formatDecimal(player.salary, 1, 2)}"></b> ₴</p>
+            <p>📉 Ежемесячные расходы: <b th:text="${#numbers.formatDecimal(player.monthlyExpenses, 1, 2)}"></b> ₴</p>
+            <p>📈 Пассивный доход: <span id="dailyCashFlow_" th:attr="id='dailyCashFlow_' + ${player.id}" th:text="${player.dailyCashFlow}">0.0</span> ₴</p>
+
+            <h4>Пассивы:</h4>
+            <table>
+                <thead><tr><th>Платёж</th></tr></thead>
+                <tbody>
+                <tr th:each="l : ${player.liabilities}">
+                    <td th:text="${l.name}"></td>
+                    <td th:text="${#numbers.formatDecimal(l.monthlyPayment, 1, 2)}"></td>
+                </tr>
+                </tbody>
+            </table>
+            <!-- Current ooportunity card -->
+            <div id="cardInfo" class="cardInfo"
+                 th:if="${player.id == data.currentPlayer.id}"
+                 style="margin-top:20px;padding:15px;border:2px solid #4CAF50;border-radius:10px;background:#f9fff9;">
+                <h3>🎯 Текущее предложение покупки</h3>
+                <p>Название: <span id="cardDescription" th:text="${data.card.description}">Нет</span></p>
+                <p>Стоимость: <span id="cardPrice" th:text="${data.card.price}">0.0</span> ₴</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear: both;"></div>
+
+<div id="controls">
+    <div style="margin-top: 20px;">
+        <button id="buyButton" class="btn">Сделать покупку</button>
+    </div>
+    <div style="margin-top: 10px;">
+        <button id="endTurnButton" class="btn">Закончить ход</button>
+    </div>
 </div>
 
-<div style="margin-top: 20px;">
-    <button id="buyBtn" class="btn">Сделать покупку</button>
-</div>
-<div style="margin-top: 10px;">
-    <button id="endTurnBtn" class="btn">Закончить ход</button>
-</div>
-
-<div id="loadingSpinner" class="spinner">
+<div id="spinner" class="spinner" style="display:none;">
     <div class="bounce1"></div>
     <div class="bounce2"></div>
     <div class="bounce3"></div>
-    <p>Загрузка данных...</p>
+    <p>Загрузка...</p>
 </div>
 
 <!-- Log -->
@@ -83,113 +71,10 @@
 </div>
 
 <script th:inline="javascript">
-    document.addEventListener("DOMContentLoaded", () => {
-        const gameBoard = document.getElementById('gameBoard');
-        //const gameContainer = document.getElementById('gameContainer');
-        const buyBtn = document.getElementById('buyBtn');
-        const endTurnBtn = document.getElementById('endTurnBtn');
-        const spinner = document.getElementById('loadingSpinner');
-        const gameId = /*[[${game.id}]]*/ 0;
-        let cardId = /*[[${opportunityCard != null ? opportunityCard.id : -1}]]*/ -1;
-
-         // logging for debug purposes
-        console.log("gameBoard:", gameBoard);
-        console.log("gameId:", gameId);
-
-        function updateGame(data) {
-            console.log("MoveResponseDTO:", data);
-            const playerId = data.currentPlayer.id;
-            // 🔹 Обновляем имя активного игрока
-            // Assuming you have an element with ID "activePlayerName"
-            document.getElementById("activePlayerName").innerText = data.currentPlayer.name;
-            // 🔹 Обновляем кэш игрока
-            // Assuming you have an element with ID "activePlayerCash"
-            document.getElementById("cash_" + playerId).innerText = data.currentPlayer.cash.toFixed(2);
-            // 🔹 Обновляем daily cash flow
-            // Assuming you have an element with ID "activePlayerDaily"
-            document.getElementById("dailyCashFlow_" + playerId).innerText = data.dailyCashFlow.toFixed(2);
-            // 🔹 Обновляем карточку на экране
-            const card = data.currentPlayer.card;
-
-            if (card) {
-                // Assuming you have elements for card details
-                document.getElementById("cardDescription").innerText = card.description;
-                document.getElementById("cardPrice").innerText = card.price.toFixed(2); // Assuming amount is double/int
-                //document.getElementById("cardType").innerText = card.type;
-                cardId = card.id;
-            }
-            // 🔹 Если игра закончена – показываем победителя
-            if (data.finished) {
-                alert("Игра окончена! Победитель: " + data.winner);
-                //document.getElementById("buyButton").disabled = true;
-                //document.getElementById("endTurnButton").disabled = true;
-                buyBtn.disabled = true;
-                endTurnBtn.disabled = true;
-            }
-        }
-
-        buyBtn.addEventListener('click', async () => {
-            // logging for debug purposes
-            console.log("buyBtn clicked");
-            console.log("gameContainer at click:", gameContainer);
-            try {
-                buyBtn.disabled = true;
-                buyBtn.textContent = '⏳ Завершаем ход...';
-                spinner.style.display = 'block';
-
-                // logging for debug purposes
-                console.log("parsed cardId:", cardId);
-                if (cardId < 0) {
-                    alert("❗ Нет доступной карты для покупки");
-                    return;
-                }
-                // logging for debug purposes
-                console.log("in buyBtn_click: ", cardId);
-                const response = await fetch(`/api/games/${gameId}/buy`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cardId })
-                });
-
-                if (!response.ok) throw new Error('Ошибка при совершении покупки');
-                const data = await response.json();
-                // logging for debug purposes
-                console.log("response data:", data);
-                updateGame(data);
-
-                if (data.finished) alert("🏁 Игра окончена! Победитель: " + data.winner);
-            } catch (err) {
-                console.error(err);
-                alert(err.message);
-            } finally {
-                spinner.style.display = 'none';
-                buyBtn.disabled = false;
-                buyBtn.textContent = 'Сделать покупку';
-            }
-        });
-
-        endTurnBtn.addEventListener('click', async () => {
-            // logging for debug purposes
-            console.log("endTurnBtn clicked");
-            try {
-                endTurnBtn.disabled = true;
-                spinner.style.display = 'block';
-
-                const response = await fetch(`/api/games/${gameId}/end-turn`, { method: 'POST' });
-                if (!response.ok) throw new Error('Ошибка при завершении хода');
-                const data = await response.json();
-                // logging for debug purposes
-                console.log("end-turn response data:", data);
-                updateGame(data);
-            } catch (err) {
-                console.error(err);
-                alert(err.message);
-            } finally {
-                spinner.style.display = 'none';
-                endTurnBtn.disabled = false;
-            }
-        });
-    });
+    const GAME_ID = /*[[${data.game.id}]]*/ 0;
+    console.log("gameID:", GAME_ID);
+    let cardId = /*[[${data.card.id}]]*/ -1;
 </script>
+<script src="/game.js"></script>
 </body>
 </html>

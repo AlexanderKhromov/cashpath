@@ -1,10 +1,12 @@
 package com.github.cashpath.controller.ui;
 
+import com.github.cashpath.model.dto.MoveResponseDTO;
 import com.github.cashpath.model.dto.OpportunityCardDTO;
 import com.github.cashpath.model.entity.Asset;
 import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.OpportunityCard;
 import com.github.cashpath.model.entity.Player;
+import com.github.cashpath.model.mapper.MoveResponseMapper;
 import com.github.cashpath.model.mapper.OpportunityCardMapper;
 import com.github.cashpath.service.GameService;
 import com.github.cashpath.service.OpportunityCardService;
@@ -45,13 +47,8 @@ public class UIController {
     public String gamePage(@PathVariable Long id, Model model) {
         Game game = gameService.getGame(id);
         OpportunityCard opportunityCard = opportunityCardService.getRandomAvailableCard();
-        OpportunityCardDTO dto = OpportunityCardMapper.toOpportunityCardDTO(opportunityCard);
-        model.addAttribute("game", game);
-        model.addAttribute("passiveIncomes", game.getPlayers().stream()
-                .map(p -> p.getAssets().stream()
-                        .mapToDouble(Asset::getMonthlyCashFlow).sum())
-                .toList());
-        model.addAttribute("opportunityCard", dto);
+        MoveResponseDTO moveResponseDTO = MoveResponseMapper.toMoveResponseDTO(game, game.getPlayers().getFirst(), opportunityCard);
+        model.addAttribute("data", moveResponseDTO);
         return "game/game-board";
     }
 

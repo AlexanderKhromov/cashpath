@@ -97,11 +97,12 @@ public class GameServiceImpl implements GameService {
         return getMoveResponse(game);
     }
 
-    private double getPassiveIncome(Player player) {
+    private static double getPassiveIncome(Player player) {
         return player.getAssets().stream().mapToDouble(Asset::getMonthlyCashFlow).sum();
     }
 
-    private double getDailyCashFlow(Player player) {
+    //TODO consider about extracting in helper class
+    public static double getDailyCashFlow(Player player) {
         double passiveIncome = getPassiveIncome(player);
         return Math.round((player.getSalary() + passiveIncome - player.getMonthlyExpenses()) / MONTH_DAYS);
     }
@@ -140,7 +141,7 @@ public class GameServiceImpl implements GameService {
     private MoveResponseDTO getMoveResponse(Game game) {
         OpportunityCard nextCard = cardRepository.findRandomAvailableCard();
         Player currentPlayer = game.getPlayers().get(game.getCurrentTurn());
-        return MoveResponseMapper.toMoveResponseDTO(game, currentPlayer, getDailyCashFlow(currentPlayer), nextCard);
+        return MoveResponseMapper.toMoveResponseDTO(game, currentPlayer, nextCard);
     }
 
     private void switchTurn(Game game) {

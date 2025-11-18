@@ -1,0 +1,131 @@
+<style>
+/* ======================= */
+/* Базовые стили страницы */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f8f9fa;
+}
+
+h1 {
+    color: #333;
+}
+
+.active {
+    border-color: #007bff;
+    box-shadow: 0 0 10px rgba(0,123,255,0.3);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 5px;
+    text-align: left;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* ======================= */
+/* Анимация спиннера */
+@keyframes bouncedelay {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
+}
+
+.spinner {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.spinner div {
+    width: 12px;
+    height: 12px;
+    background-color: #007bff;
+    border-radius: 100%;
+    display: inline-block;
+    animation: bouncedelay 1.4s infinite ease-in-out both;
+}
+
+.spinner .bounce1 { animation-delay: -0.32s; }
+.spinner .bounce2 { animation-delay: -0.16s; }
+
+/* ======================= */
+/* Прозрачное появление элементов */
+.fade-in {
+    opacity: 0;
+    transition: opacity 0.6s ease-in;
+}
+
+.fade-in.visible {
+    opacity: 1;
+}
+
+/* ======================= */
+/* Активный игрок */
+.active-player-name {
+    font-weight: bold;
+    font-size: 1.4em;
+}
+
+/* ======================= */
+/* Игроки — две колонки */
+.players-row {
+    display: flex;
+    justify-content: space-between; /* слева и справа */
+    flex-wrap: wrap; /* перенос на новую строку при маленькой ширине */
+    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.player-card {
+    flex: 0 1 48%; /* половина контейнера */
+    min-width: 300px; /* минимальная ширина для мобильных */
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+    background: #fff;
+    box-sizing: border-box;
+    margin-bottom: 20px; /* вертикальный отступ между рядами */
+}
+
+.player-card table {
+    width: 100%;
+}
+
+.cardInfo {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+/* ======================= */
+/* Адаптивность для мобильных экранов */
+@media (max-width: 650px) {
+    .player-card {
+        flex: 0 1 100%; /* одна колонка */
+    }
+}
+</style>

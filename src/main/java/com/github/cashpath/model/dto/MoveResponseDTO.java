@@ -1,9 +1,12 @@
 package com.github.cashpath.model.dto;
 
+import java.util.List;
+
 public record MoveResponseDTO(
-        Long gameId,
+        GameDTO game,
         PlayerDTO currentPlayer,
-        double dailyCashFlow,
+        List<PlayerDTO> players,
+        OpportunityCardDTO card,
         boolean finished,
         String winner
 ){}
