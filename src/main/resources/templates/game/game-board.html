@@ -13,8 +13,6 @@
     <h3>День: <span th:text="${data.game.currentDay}"></span>
         <span> Ход игрока: </span>
         <span id="activePlayerName" th:text="${data.currentPlayer.name}"></span>
-        <span> GameID: </span>
-        <span id="game_Id" th:text="${data.game.id}"></span>
     </h3>
 
     <div class="players-row">
@@ -72,7 +70,6 @@
 
 <script th:inline="javascript">
     const GAME_ID = /*[[${data.game.id}]]*/ 0;
-    console.log("gameID:", GAME_ID);
     let cardId = /*[[${data.card.id}]]*/ -1;
 </script>
 <script src="/game.js"></script>
