@@ -7,10 +7,6 @@ import jakarta.annotation.Nonnull;
 public class OpportunityCardMapper {
 
     public static OpportunityCardDTO toOpportunityCardDTO(@Nonnull OpportunityCard card) {
-        OpportunityCardDTO dto = new OpportunityCardDTO();
-        dto.setId(card.getId());
-        dto.setDescription(card.getDescription());
-        dto.setPrice(card.getAmount());
-        return dto;
+        return new OpportunityCardDTO(card.getId(), card.getDescription(), card.getAmount());
     }
 }

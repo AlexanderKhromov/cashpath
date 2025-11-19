@@ -1,15 +1,12 @@
 package com.github.cashpath.controller.ui;
 
 import com.github.cashpath.model.dto.MoveResponseDTO;
-import com.github.cashpath.model.dto.OpportunityCardDTO;
-import com.github.cashpath.model.entity.Asset;
 import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.OpportunityCard;
 import com.github.cashpath.model.entity.Player;
 import com.github.cashpath.model.mapper.MoveResponseMapper;
-import com.github.cashpath.model.mapper.OpportunityCardMapper;
-import com.github.cashpath.service.GameService;
-import com.github.cashpath.service.OpportunityCardService;
+import com.github.cashpath.service.game.GameLifecycleService;
+import com.github.cashpath.service.opportunity.OpportunityService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,14 +15,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Collections;
 import java.util.List;
 
 @Controller
 @AllArgsConstructor
 public class UIController {
 
-    private final GameService gameService;
-    private final OpportunityCardService opportunityCardService;
+    private final GameLifecycleService gameLifecycleService;
+    private final OpportunityService opportunityService;
 
     @GetMapping("/")
     public String index() {
@@ -39,15 +37,15 @@ public class UIController {
         p1.setName(player1Name != null && !player1Name.isBlank() ? player1Name.trim() : "Игрок 1");
         Player p2 = new Player();
         p2.setName(player2Name != null && !player2Name.isBlank() ? player2Name.trim() : "Игрок 2");
-        Game game = gameService.createGame(List.of(p1, p2));
+        Game game = gameLifecycleService.createGame(List.of(p1, p2));
         return "redirect:/game/" + game.getId();
     }
 
     @GetMapping("/game/{id}")
     public String gamePage(@PathVariable Long id, Model model) {
-        Game game = gameService.getGame(id);
-        OpportunityCard opportunityCard = opportunityCardService.getRandomAvailableCard();
-        MoveResponseDTO moveResponseDTO = MoveResponseMapper.toMoveResponseDTO(game, game.getPlayers().getFirst(), opportunityCard);
+        Game game = gameLifecycleService.getGame(id);
+        OpportunityCard opportunityCard = opportunityService.getRandomCard();
+        MoveResponseDTO moveResponseDTO = MoveResponseMapper.toMoveResponseDTO(game, game.getPlayers().getFirst(), opportunityCard, Collections.emptyMap());
         model.addAttribute("data", moveResponseDTO);
         return "game/game-board";
     }

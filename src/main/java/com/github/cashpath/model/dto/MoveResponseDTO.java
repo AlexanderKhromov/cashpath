@@ -9,4 +9,5 @@ public record MoveResponseDTO(
         OpportunityCardDTO card,
         boolean finished,
         String winner
-){}
+) {
+}

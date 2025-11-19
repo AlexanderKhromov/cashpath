@@ -7,9 +7,6 @@ import jakarta.annotation.Nonnull;
 public class AssetMapper {
 
     public static AssetDTO toAssetDTO(@Nonnull Asset asset) {
-        AssetDTO dto = new AssetDTO();
-        dto.setName(asset.getName());
-        dto.setMonthlyCashFlow(asset.getMonthlyCashFlow());
-        return dto;
+        return new AssetDTO(asset.getName(), asset.getMonthlyCashFlow());
     }
 }
