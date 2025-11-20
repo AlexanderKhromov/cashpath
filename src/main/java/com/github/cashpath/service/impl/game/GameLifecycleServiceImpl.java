@@ -53,7 +53,7 @@ public class GameLifecycleServiceImpl implements GameLifecycleService {
         Set<Liability> liabilities = initializer.generateLiabilities(salary);
         liabilities.forEach(l -> l.setOwner(player));
 
-        player.setLiabilities(liabilities);
+        player.getLiabilities().addAll(liabilities);
         player.setMonthlyExpenses(liabilities.stream()
                 .mapToDouble(Liability::getMonthlyPayment)
                 .sum());

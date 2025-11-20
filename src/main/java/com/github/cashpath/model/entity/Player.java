@@ -1,6 +1,7 @@
 package com.github.cashpath.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,9 +30,11 @@ public class Player {
     private boolean onFastTrack;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Setter(AccessLevel.PRIVATE)
     private Set<Asset> assets = new HashSet<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Setter(AccessLevel.PRIVATE)
     private Set<Liability> liabilities = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
