@@ -24,7 +24,7 @@ public interface OpportunityCardRepository extends JpaRepository<OpportunityCard
 
     @Query(value = """
                 SELECT c.*
-                FROM opportunity_card c
+                FROM opportunity_cards c
                 WHERE c.is_available = true
                 ORDER BY random()
                 LIMIT 1
