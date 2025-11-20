@@ -1,6 +1,7 @@
 package com.github.cashpath.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +19,7 @@ public class Game {
     private Long id;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Setter(AccessLevel.PRIVATE)
     private List<Player> players = new ArrayList<>();
 
     @Column(name = "current_turn")

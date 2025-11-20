@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,7 +35,8 @@ class MoveResponseMapperTest {
         p2.setName("Bob");
         p2.setGame(game);
 
-        game.setPlayers(List.of(p1, p2));
+        game.addPlayer(p1);
+        game.addPlayer(p2);
 
         // --- Daily cash map ---
         Map<Long, Double> daily = Map.of(
@@ -84,7 +84,7 @@ class MoveResponseMapperTest {
         current.setId(1L);
         current.setName("Winner");
 
-        game.setPlayers(List.of(current));
+        game.addPlayer(current);
 
         OpportunityCard card = new OpportunityCard();
         Map<Long, Double> daily = Map.of(1L, 5.0);
