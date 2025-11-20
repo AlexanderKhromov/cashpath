@@ -1,0 +1,97 @@
+package com.github.cashpath.model.mapper;
+
+import com.github.cashpath.model.dto.MoveResponseDTO;
+import com.github.cashpath.model.entity.Game;
+import com.github.cashpath.model.entity.OpportunityCard;
+import com.github.cashpath.model.entity.Player;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class MoveResponseMapperTest {
+
+    @Test
+    void toMoveResponseDTO_shouldMapAllFieldsCorrectly() {
+
+        // --- Prepare Game ---
+        Game game = new Game();
+        game.setId(1L);
+        game.setCurrentTurn(3);
+        game.setCurrentDay(LocalDate.of(2025, 11, 20));
+        game.setStatus(Game.GameStatus.ACTIVE);
+
+        // --- Prepare Players ---
+        Player p1 = new Player();
+        p1.setId(100L);
+        p1.setName("Alice");
+        p1.setGame(game);
+
+        Player p2 = new Player();
+        p2.setId(200L);
+        p2.setName("Bob");
+        p2.setGame(game);
+
+        game.setPlayers(List.of(p1, p2));
+
+        // --- Daily cash map ---
+        Map<Long, Double> daily = Map.of(
+                100L, 10.0,
+                200L, 25.0
+        );
+
+        // --- Opportunity card ---
+        OpportunityCard card = new OpportunityCard();
+        card.setId(77L);
+        card.setDescription("Test card");
+
+        // --- Call mapper ---
+        MoveResponseDTO dto = MoveResponseMapper.toMoveResponseDTO(game, p2, card, daily);
+
+        // --- Assert core fields ---
+        assertEquals(1L, dto.game().id());
+        assertEquals(3, dto.game().currentTurn());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate expectedDate = LocalDate.parse("2025-11-20", formatter);
+        assertEquals(expectedDate, dto.game().currentDay());
+
+        assertEquals("Bob", dto.currentPlayer().name());
+        assertEquals(25.0, dto.currentPlayer().dailyCashFlow());
+
+        assertEquals(2, dto.players().size());
+        assertEquals("Alice", dto.players().get(0).name());
+        assertEquals("Bob", dto.players().get(1).name());
+
+        assertEquals("Test card", dto.card().description());
+
+        // Game not finished
+        assertFalse(dto.finished());
+        assertNull(dto.winner());
+    }
+
+    @Test
+    void toMoveResponseDTO_shouldSetWinnerIfGameFinished() {
+        // Game finished
+        Game game = new Game();
+        game.setStatus(Game.GameStatus.FINISHED);
+
+        Player current = new Player();
+        current.setId(1L);
+        current.setName("Winner");
+
+        game.setPlayers(List.of(current));
+
+        OpportunityCard card = new OpportunityCard();
+        Map<Long, Double> daily = Map.of(1L, 5.0);
+
+        MoveResponseDTO dto = MoveResponseMapper.toMoveResponseDTO(game, current, card, daily);
+
+        assertTrue(dto.finished());
+        assertEquals("Winner", dto.winner());
+    }
+}
