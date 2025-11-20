@@ -13,6 +13,6 @@ public interface OpportunityService {
 
     OpportunityCard getCardOrThrow(Long id);
 
-    void markBought(OpportunityCard card);
+    boolean tryMarkBought(OpportunityCard card);
 
 }

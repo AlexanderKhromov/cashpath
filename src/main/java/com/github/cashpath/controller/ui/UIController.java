@@ -5,6 +5,7 @@ import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.OpportunityCard;
 import com.github.cashpath.model.entity.Player;
 import com.github.cashpath.model.mapper.MoveResponseMapper;
+import com.github.cashpath.service.finance.PlayerFinanceService;
 import com.github.cashpath.service.game.GameLifecycleService;
 import com.github.cashpath.service.opportunity.OpportunityService;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -24,6 +24,7 @@ public class UIController {
 
     private final GameLifecycleService gameLifecycleService;
     private final OpportunityService opportunityService;
+    private final PlayerFinanceService financeService;
 
     @GetMapping("/")
     public String index() {
@@ -45,7 +46,7 @@ public class UIController {
     public String gamePage(@PathVariable Long id, Model model) {
         Game game = gameLifecycleService.getGame(id);
         OpportunityCard opportunityCard = opportunityService.getRandomCard();
-        MoveResponseDTO moveResponseDTO = MoveResponseMapper.toMoveResponseDTO(game, game.getPlayers().getFirst(), opportunityCard, Collections.emptyMap());
+        MoveResponseDTO moveResponseDTO = MoveResponseMapper.toMoveResponseDTO(game, game.getPlayers().getFirst(), opportunityCard, financeService.getDailyCashFlowById(game));
         model.addAttribute("data", moveResponseDTO);
         return "game/game-board";
     }

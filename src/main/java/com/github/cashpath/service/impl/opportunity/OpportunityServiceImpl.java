@@ -27,9 +27,10 @@ public class OpportunityServiceImpl implements OpportunityService {
                 .orElseThrow(() -> new OpportunityCardNotFoundException(id));
     }
 
+    @Transactional
     @Override
-    public void markBought(OpportunityCard card) {
-        card.markAsUnavailable();
-        cardRepository.save(card);
+    public boolean tryMarkBought(OpportunityCard card) {
+        int updated = cardRepository.markAsBoughtIfAvailable(card.getId());
+        return updated == 1;
     }
 }

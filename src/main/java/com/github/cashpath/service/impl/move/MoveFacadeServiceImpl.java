@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
 @Service
@@ -50,7 +49,7 @@ public class MoveFacadeServiceImpl implements MoveFacadeService {
             return buildMoveResponse(game);
         }
 
-        opportunityService.markBought(card);
+        opportunityService.tryMarkBought(card);
 
         if (isDeal(card)) {
             financeService.applyCardPurchase(currentPlayer, card);
@@ -81,11 +80,7 @@ public class MoveFacadeServiceImpl implements MoveFacadeService {
     private MoveResponseDTO buildMoveResponse(Game game) {
         Player currentPlayer = game.getPlayers().get(game.getCurrentTurn());
         OpportunityCard card = opportunityService.getRandomCard();
-        Map<Long, Double> dailyCashFlowById = game.getPlayers().stream()
-                .collect(Collectors.toMap(
-                        Player::getId,
-                        financeService::getDailyCashFlow
-                ));
+        Map<Long, Double> dailyCashFlowById = financeService.getDailyCashFlowById(game);
         return MoveResponseMapper.toMoveResponseDTO(game, currentPlayer, card, dailyCashFlowById);
     }
 
