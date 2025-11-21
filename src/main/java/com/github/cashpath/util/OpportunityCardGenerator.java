@@ -222,7 +222,7 @@ public class OpportunityCardGenerator {
         return array[RANDOM.nextInt(array.length)];
     }
 
-    private static OpportunityCard.OpportunityType getRandomWeightedType() {
+    public static OpportunityCard.OpportunityType getRandomWeightedType() {
         double r = RANDOM.nextDouble();
 
         if (r < SMALL_WEIGHT) return OpportunityCard.OpportunityType.SMALL_DEAL;

@@ -2,6 +2,7 @@ package com.github.cashpath.util;
 
 import com.github.cashpath.model.entity.Asset;
 import com.github.cashpath.model.entity.OpportunityCard;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
@@ -68,18 +69,40 @@ class OpportunityCardGeneratorTest {
     }
 
     // ---------- Weighted randomness ----------
-    @RepeatedTest(10)
+
+    /**
+     * deviationLimit = 1 ≈ 68% probability
+     * deviationLimit = 2 ≈ 95%
+     * deviationLimit = 3 ≈ 99.7%
+     * deviationLimit = 4 ≈ 99.99%
+     */
+    @Test
     void weightedTypeDistribution_ShouldApproximateWeights() {
-        List<OpportunityCard> cards = OpportunityCardGenerator.generateRandomCards();
+        int attempts = 100_000;
+        int big = 0;
+        for (int i = 0; i < attempts; i++) {
+            OpportunityCard.OpportunityType type = OpportunityCardGenerator.getRandomWeightedType();
+            if (type == OpportunityCard.OpportunityType.BIG_DEAL) {
+                big++;
+            }
+        }
 
-        long small = cards.stream().filter(c -> c.getType() == OpportunityCard.OpportunityType.SMALL_DEAL).count();
-        long doodad = cards.stream().filter(c -> c.getType() == OpportunityCard.OpportunityType.DOODAD).count();
-        long big = cards.stream().filter(c -> c.getType() == OpportunityCard.OpportunityType.BIG_DEAL).count();
+        double weight = 0.15; // BIG_WEIGHT from OpportunityCardGenerator
+        double expected = attempts * weight;
 
-        // Allowable deviation: ±20%
-        assertTrue(small > 40);
-        assertTrue(doodad > 20);
-        assertTrue(big > 5);
+        // Standard deviation for a binomial distribution (n, p)
+        // Used to determine statistically acceptable deviation range.
+        double stdDev = Math.sqrt(attempts * weight * (1 - weight));
+
+        // We allow a deviation within 4 standard deviations.
+        // This corresponds to a ~99.99% confidence interval,
+        // making the test highly stable and resistant to random noise.
+        double deviationLimit = 4 * stdDev;
+
+        assertTrue(
+                Math.abs(big - expected) <= deviationLimit,
+                "Distribution is too far from expected: actual=" + big + ", expected=" + expected
+        );
     }
 
     // ---------- Regression tests ----------
