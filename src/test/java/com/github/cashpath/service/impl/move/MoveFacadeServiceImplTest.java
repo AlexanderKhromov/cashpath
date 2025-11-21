@@ -85,6 +85,7 @@ class MoveFacadeServiceImplTest {
         player.setCash(100.0);
         when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
         when(opportunityService.getCardOrThrow(1L)).thenReturn(card);
+        when(opportunityService.getRandomCard()).thenReturn(card);
 
         MoveResponseDTO response = service.buy(1L, new BuyRequestDTO(1L));
 
