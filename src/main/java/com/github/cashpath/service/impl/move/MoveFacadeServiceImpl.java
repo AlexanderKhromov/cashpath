@@ -1,6 +1,7 @@
 package com.github.cashpath.service.impl.move;
 
 import com.github.cashpath.exception.GameNotFoundException;
+import com.github.cashpath.exception.PlayerNotFoundException;
 import com.github.cashpath.model.dto.BuyRequestDTO;
 import com.github.cashpath.model.dto.MoveResponseDTO;
 import com.github.cashpath.model.entity.Game;
@@ -37,10 +38,12 @@ public class MoveFacadeServiceImpl implements MoveFacadeService {
     @Override
     public MoveResponseDTO buy(Long gameId, BuyRequestDTO request) {
 
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new GameNotFoundException(gameId));
+        Game game = gameLifecycleService.getGame(gameId);
 
         Player currentPlayer = game.getPlayers().get(game.getCurrentTurn());
+        Long currentPlayerId = currentPlayer.getId();
+        currentPlayer = playerRepository.findById(currentPlayerId).orElseThrow(()
+                -> new PlayerNotFoundException(currentPlayerId));
 
         OpportunityCard card = opportunityService.getCardOrThrow(request.cardId());
 
@@ -68,24 +71,26 @@ public class MoveFacadeServiceImpl implements MoveFacadeService {
         return buildMoveResponse(game);
     }
 
+    @Transactional
     @Override
     public MoveResponseDTO endTurn(Long gameId) {
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new GameNotFoundException(gameId));
-
+        Game game = gameLifecycleService.getGame(gameId);
         gameLifecycleService.switchTurn(game);
         return buildMoveResponse(game);
     }
 
     private MoveResponseDTO buildMoveResponse(Game game) {
         Player currentPlayer = game.getPlayers().get(game.getCurrentTurn());
+        Player updatedPlayer = playerRepository.findById(currentPlayer.getId()).orElseThrow(()
+                -> new PlayerNotFoundException(currentPlayer.getId()));
         OpportunityCard card = opportunityService.getRandomCard();
-        Map<Long, Double> dailyCashFlowById = financeService.getDailyCashFlowById(game);
-        return MoveResponseMapper.toMoveResponseDTO(game, currentPlayer, card, dailyCashFlowById);
+        Game updatedGame  = gameLifecycleService.getGame(game.getId());
+        Map<Long, Double> dailyCashFlowById = financeService.getDailyCashFlowById(updatedGame);
+        return MoveResponseMapper.toMoveResponseDTO(updatedGame, updatedPlayer, card, dailyCashFlowById);
     }
 
-    private boolean isDeal(OpportunityCard card){
-        return card.getType()== OpportunityCard.OpportunityType.BIG_DEAL
-                || card.getType()== OpportunityCard.OpportunityType.SMALL_DEAL;
+    private boolean isDeal(OpportunityCard card) {
+        return card.getType() == OpportunityCard.OpportunityType.BIG_DEAL
+                || card.getType() == OpportunityCard.OpportunityType.SMALL_DEAL;
     }
 }

@@ -4,11 +4,55 @@ const spinner = document.getElementById('spinner');
 
 function updateGame(data) {
     console.log("MoveResponseDTO:", data);
-    const playerId = data.currentPlayer.id;
 
+    // update current player name
     document.getElementById("activePlayerName").innerText = data.currentPlayer.name;
-    document.getElementById("cash_" + playerId).innerText = data.currentPlayer.cash.toFixed(2);
-    document.getElementById("dailyCashFlow_" + playerId).innerText = data.currentPlayer.dailyCashFlow.toFixed(2);
+
+    // updating data for all players
+    data.players.forEach(player => {
+        const pid = player.id;
+
+        // update cash and daily cash flow
+        const cashEl = document.getElementById("cash_" + pid);
+        const flowEl = document.getElementById("dailyCashFlow_" + pid);
+
+        if (cashEl) cashEl.innerText = player.cash.toFixed(2);
+        if (flowEl) flowEl.innerText = player.dailyCashFlow.toFixed(2);
+
+        // -------------------------------
+        // 🔥 Update table liabilities
+        // -------------------------------
+        const liabilitiesBody = document.getElementById("liabilities_body_" + pid);
+        if (liabilitiesBody) {
+            liabilitiesBody.innerHTML = "";
+
+            player.liabilities.forEach(l => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${l.name}</td>
+                    <td>${l.monthlyPayment.toFixed(2)}</td>
+                `;
+                liabilitiesBody.appendChild(row);
+            });
+        }
+
+        // ------------------------------
+        // 🔥 Update table assets
+        // ------------------------------
+        const assetsBody = document.getElementById("assets_body_" + pid);
+        if (assetsBody) {
+            assetsBody.innerHTML = "";
+
+            player.assets.forEach(a => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${a.name}</td>
+                    <td>${a.monthlyCashFlow.toFixed(2)}</td>
+                `;
+                assetsBody.appendChild(row);
+            });
+        }
+    });
 
     const card = data.card;
     if (card) {
@@ -24,7 +68,6 @@ function updateGame(data) {
     }
 }
 
-// Пример вызова API
 async function buyCard() {
     spinner.style.display = 'block';
     buyBtn.disabled = true;

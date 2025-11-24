@@ -18,18 +18,53 @@
     <div class="players-row">
         <div class="player player-card" th:each="player : ${data.players}" th:attr="id='player_' + ${player.id}">
             <h3 class="playerName" th:text="${player.name}">Игрок</h3>
-            <p>💰 Наличные: <span id="cash_" th:attr="id='cash_' + ${player.id}" th:text="${player.cash}">0.0</span> ₴</p>
-            <p>💼 Зарплата: <b th:text="${#numbers.formatDecimal(player.salary, 1, 2)}"></b> ₴</p>
-            <p>📉 Ежемесячные расходы: <b th:text="${#numbers.formatDecimal(player.monthlyExpenses, 1, 2)}"></b> ₴</p>
-            <p>📈 Пассивный доход: <span id="dailyCashFlow_" th:attr="id='dailyCashFlow_' + ${player.id}" th:text="${player.dailyCashFlow}">0.0</span> ₴</p>
+            <p>💰 Наличные:
+                <span th:id="'cash_' + ${player.id}" th:text="${player.cash}">0.0</span> ₴
+            </p>
+
+            <p>💼 Зарплата:
+                <span th:id="'salary_' + ${player.id}"
+                      th:text="${#numbers.formatDecimal(player.salary, 1, 2)}">
+                </span> ₴
+            </p>
+
+            <p>📉 Ежемесячные расходы:
+                <span th:id="'expenses_' + ${player.id}"
+                      th:text="${#numbers.formatDecimal(player.monthlyExpenses, 1, 2)}">
+                </span> ₴
+            </p>
+
+            <p>📈 Пассивный доход:
+                <span th:id="'dailyCashFlow_' + ${player.id}"
+                      th:text="${player.dailyCashFlow}">
+                </span> ₴
+            </p>
 
             <h4>Пассивы:</h4>
-            <table>
-                <thead><tr><th>Платёж</th></tr></thead>
-                <tbody>
+            <table th:id="'liabilities_' + ${player.id}">
+                <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Платёж</th>
+                </tr></thead>
+                <tbody th:id="'liabilities_body_' + ${player.id}">
                 <tr th:each="l : ${player.liabilities}">
                     <td th:text="${l.name}"></td>
                     <td th:text="${#numbers.formatDecimal(l.monthlyPayment, 1, 2)}"></td>
+                </tr>
+                </tbody>
+            </table>
+            <table th:id="'assets_' + ${player.id}">
+                <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Доход</th>
+                </tr>
+                </thead>
+                <tbody th:id="'assets_body_' + ${player.id}">
+                <tr th:each="a : ${player.assets}">
+                    <td th:text="${a.name}"></td>
+                    <td th:text="${#numbers.formatDecimal(a.monthlyCashFlow, 1, 2)}"></td>
                 </tr>
                 </tbody>
             </table>
