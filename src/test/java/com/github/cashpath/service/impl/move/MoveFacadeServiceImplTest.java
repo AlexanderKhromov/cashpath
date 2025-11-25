@@ -1,6 +1,5 @@
 package com.github.cashpath.service.impl.move;
 
-import com.github.cashpath.exception.GameNotFoundException;
 import com.github.cashpath.model.dto.BuyRequestDTO;
 import com.github.cashpath.model.dto.MoveResponseDTO;
 import com.github.cashpath.model.entity.Game;
@@ -69,23 +68,13 @@ class MoveFacadeServiceImplTest {
     }
 
     @Test
-    @DisplayName("buy throws exception when game not found")
-    void testBuyGameNotFound() {
-        when(gameRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(GameNotFoundException.class,
-                () -> service.buy(1L, new BuyRequestDTO(1L)));
-
-        verify(gameRepository).findById(1L);
-    }
-
-    @Test
     @DisplayName("buy skips purchase if player has insufficient cash")
     void testBuyInsufficientCash() {
         player.setCash(100.0);
-        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(gameLifecycleService.getGame(1L)).thenReturn(game);
         when(opportunityService.getCardOrThrow(1L)).thenReturn(card);
         when(opportunityService.getRandomCard()).thenReturn(card);
+        when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
 
         MoveResponseDTO response = service.buy(1L, new BuyRequestDTO(1L));
 
@@ -98,12 +87,13 @@ class MoveFacadeServiceImplTest {
     @Test
     @DisplayName("buy applies card purchase and updates player cash")
     void testBuySuccess() {
-        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(gameLifecycleService.getGame(1L)).thenReturn(game);
         when(opportunityService.getCardOrThrow(1L)).thenReturn(card);
         when(opportunityService.tryMarkBought(card)).thenReturn(true);
         when(financeService.getDailyCashFlow(player)).thenReturn(100.0);
         when(financeService.getDailyCashFlowById(game)).thenReturn(Map.of(player.getId(), 100.0));
         when(opportunityService.getRandomCard()).thenReturn(card);
+        when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
 
         MoveResponseDTO response = service.buy(1L, new BuyRequestDTO(1L));
 
@@ -115,20 +105,12 @@ class MoveFacadeServiceImplTest {
     }
 
     @Test
-    @DisplayName("endTurn throws exception when game not found")
-    void testEndTurnGameNotFound() {
-        when(gameRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(GameNotFoundException.class,
-                () -> service.endTurn(1L));
-    }
-
-    @Test
     @DisplayName("endTurn switches turn and builds response")
     void testEndTurnSuccess() {
-        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(gameLifecycleService.getGame(1L)).thenReturn(game);
         when(financeService.getDailyCashFlowById(game)).thenReturn(Map.of(player.getId(), 100.0));
         when(opportunityService.getRandomCard()).thenReturn(card);
+        when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
 
         MoveResponseDTO response = service.endTurn(1L);
 
