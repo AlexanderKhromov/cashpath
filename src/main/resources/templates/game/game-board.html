@@ -35,9 +35,14 @@
                 </span> ₴
             </p>
 
-            <p>📈 Пассивный доход:
+            <p>📈 Ежедневный доход:
                 <span th:id="'dailyCashFlow_' + ${player.id}"
                       th:text="${player.dailyCashFlow}">
+                </span> ₴
+            </p>
+            <p>📈 Пассивный доход:
+                <span th:id="'passiveIncome_' + ${player.id}"
+                      th:text="${player.passiveIncome}">
                 </span> ₴
             </p>
 

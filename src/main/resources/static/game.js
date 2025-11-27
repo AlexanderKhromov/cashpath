@@ -15,9 +15,11 @@ function updateGame(data) {
         // update cash and daily cash flow
         const cashEl = document.getElementById("cash_" + pid);
         const flowEl = document.getElementById("dailyCashFlow_" + pid);
+        const passiveEl = document.getElementById("passiveIncome_" + pid);
 
         if (cashEl) cashEl.innerText = player.cash.toFixed(2);
         if (flowEl) flowEl.innerText = player.dailyCashFlow.toFixed(2);
+        if (passiveEl) passiveEl.innerText = player.passiveIncome.toFixed(2);
 
         // -------------------------------
         // 🔥 Update table liabilities
