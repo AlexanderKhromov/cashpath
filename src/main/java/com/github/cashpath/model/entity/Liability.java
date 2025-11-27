@@ -14,8 +14,8 @@ public class Liability {
     private Long id;
     @Column(nullable = false)
     private String name;
-    @Column(name = "monthly_payment")
-    private double monthlyPayment;
+    @Column(name = "daily_payment")
+    private double dailyPayment;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")

@@ -12,12 +12,12 @@ class LiabilityMapperTest {
     void toLiabilityDTO_shouldMapFields() {
         Liability liability = new Liability();
         liability.setName("Credit Card");
-        liability.setMonthlyPayment(150.75);
+        liability.setDailyPayment(150.75);
 
         LiabilityDTO dto = LiabilityMapper.toLiabilityDTO(liability);
 
         assertEquals("Credit Card", dto.name());
-        assertEquals(150.75, dto.monthlyPayment());
+        assertEquals(150.75, dto.dailyPayment());
     }
 }
 

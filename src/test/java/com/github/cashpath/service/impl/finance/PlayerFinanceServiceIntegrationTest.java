@@ -27,10 +27,10 @@ public class PlayerFinanceServiceIntegrationTest {
         Player p1 = new Player();
         p1.setId(1L);
         p1.setSalary(30_000);
-        p1.setMonthlyExpenses(10_000);
+        p1.setDailyExpenses(10_000);
 
         Asset a1 = new Asset();
-        a1.setMonthlyCashFlow(1_000);
+        a1.setDailyCashFlow(1_000);
         a1.setOwner(p1);
         p1.getAssets().add(a1);
 
@@ -40,6 +40,6 @@ public class PlayerFinanceServiceIntegrationTest {
         Map<Long, Double> result = financeService.getDailyCashFlowById(game);
 
         assertEquals(1, result.size());
-        assertEquals(700.0, result.get(1L)); // (30+1-10)/30=21/30≈700
+        assertEquals(21000.0, result.get(1L)); // (30+1-10)=21
     }
 }

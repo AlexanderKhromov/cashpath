@@ -24,8 +24,8 @@ public class Player {
     private double cash;
     @Column
     private double salary;
-    @Column(name = "monthly_expenses")
-    private double monthlyExpenses;
+    @Column(name = "daily_expenses")
+    private double dailyExpenses;
     @Column(name = "on_fast_track")
     private boolean onFastTrack;
 

@@ -55,7 +55,7 @@ public class MoveFacadeServiceIntegrationTest {
         game.addPlayer(player);
         game = gameRepository.save(game);
 
-        card = opportunityService.getRandomCard(); // Предполагаем, что в H2 есть хотя бы одна карта
+        card = opportunityService.getRandomCard();
     }
 
     @Test

@@ -37,7 +37,7 @@ public class PlayerInitializer {
     private Liability createLiability(String liabilityName, double salary, double percent) {
         Liability l1 = new Liability();
         l1.setName(liabilityName);
-        l1.setMonthlyPayment(salary * percent);
+        l1.setDailyPayment(salary * percent);
         return l1;
     }
 

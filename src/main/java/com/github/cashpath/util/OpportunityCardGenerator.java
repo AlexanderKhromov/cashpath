@@ -2,6 +2,7 @@ package com.github.cashpath.util;
 
 import com.github.cashpath.model.entity.Asset;
 import com.github.cashpath.model.entity.OpportunityCard;
+import com.github.cashpath.service.impl.finance.PlayerFinanceServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -189,7 +190,7 @@ public class OpportunityCardGenerator {
         Asset asset = new Asset();
         asset.setName(name);
         asset.setPrice(price);
-        asset.setMonthlyCashFlow(income / 12);
+        asset.setDailyCashFlow(income);
         asset.setType(type);
 
         return asset;

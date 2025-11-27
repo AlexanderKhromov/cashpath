@@ -19,19 +19,17 @@ import java.util.stream.Collectors;
 @Log4j2
 public class PlayerFinanceServiceImpl implements PlayerFinanceService {
 
-    public static final int MONTH_DAYS = 30;
-
     @Override
     public double getPassiveIncome(Player player) {
         return player.getAssets().stream()
-                .mapToDouble(Asset::getMonthlyCashFlow)
+                .mapToDouble(Asset::getDailyCashFlow)
                 .sum();
     }
 
     @Override
     public double getDailyCashFlow(Player player) {
         double passive = getPassiveIncome(player);
-        return Math.round((player.getSalary() + passive - player.getMonthlyExpenses()) / MONTH_DAYS);
+        return Math.round((player.getSalary() + passive - player.getDailyExpenses()));
     }
 
     @Transactional

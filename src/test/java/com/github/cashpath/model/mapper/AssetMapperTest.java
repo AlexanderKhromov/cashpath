@@ -11,11 +11,11 @@ class AssetMapperTest {
     void shouldMapAssetToDTO() {
         Asset asset = new Asset();
         asset.setName("Квартира");
-        asset.setMonthlyCashFlow(500);
+        asset.setDailyCashFlow(500);
 
         AssetDTO dto = AssetMapper.toAssetDTO(asset);
 
         assertEquals("Квартира", dto.name());
-        assertEquals(500, dto.monthlyCashFlow());
+        assertEquals(500, dto.dailyCashFlow());
     }
 }

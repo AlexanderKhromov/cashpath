@@ -8,7 +8,7 @@ public record PlayerDTO(
         double cash,
         double salary,
         double dailyCashFlow,
-        double monthlyExpenses,
+        double dailyExpenses,
         double passiveIncome,
         Set<LiabilityDTO> liabilities,
         Set<AssetDTO> assets

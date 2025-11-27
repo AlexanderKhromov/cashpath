@@ -30,7 +30,7 @@ function updateGame(data) {
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${l.name}</td>
-                    <td>${l.monthlyPayment.toFixed(2)}</td>
+                    <td>${l.dailyPayment.toFixed(2)}</td>
                 `;
                 liabilitiesBody.appendChild(row);
             });
@@ -47,7 +47,7 @@ function updateGame(data) {
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${a.name}</td>
-                    <td>${a.monthlyCashFlow.toFixed(2)}</td>
+                    <td>${a.dailyCashFlow.toFixed(2)}</td>
                 `;
                 assetsBody.appendChild(row);
             });

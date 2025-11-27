@@ -39,7 +39,7 @@ class GameLifecycleServiceImplTest {
         when(initializer.generateRandomCash(10000.0)).thenReturn(5000.0);
         Liability l = new Liability();
         l.setName("Loan");
-        l.setMonthlyPayment(300);
+        l.setDailyPayment(300);
         when(initializer.generateLiabilities(10000.0)).thenReturn(Set.of(l));
 
         when(gameRepository.save(Mockito.any(Game.class))).thenAnswer(i -> i.getArgument(0));
@@ -66,7 +66,7 @@ class GameLifecycleServiceImplTest {
         game.addPlayer(b);
         game.addPlayer(c);
         game.setCurrentTurn(0);
-        game.setCurrentDay(LocalDate.now());
+        game.setCurrentDay(1);
 
         when(gameRepository.save(any(Game.class))).thenAnswer(i -> i.getArgument(0));
 
@@ -95,11 +95,11 @@ class GameLifecycleServiceImplTest {
         Player a = createPlayer(1L, "Alex");
 
         Asset asset = new Asset();
-        asset.setMonthlyCashFlow(5000);
+        asset.setDailyCashFlow(5000);
         asset.setOwner(a);
 
         a.getAssets().add(asset);
-        a.setMonthlyExpenses(3000);
+        a.setDailyExpenses(3000);
 
         boolean result = service.checkWinCondition(a);
 
@@ -111,11 +111,11 @@ class GameLifecycleServiceImplTest {
     void checkWinCondition_false() {
         Player a = createPlayer(1L, "Alex");
         Asset asset = new Asset();
-        asset.setMonthlyCashFlow(1000);
+        asset.setDailyCashFlow(1000);
         asset.setOwner(a);
 
         a.getAssets().add(asset);
-        a.setMonthlyExpenses(3000);
+        a.setDailyExpenses(3000);
 
         boolean result = service.checkWinCondition(a);
 

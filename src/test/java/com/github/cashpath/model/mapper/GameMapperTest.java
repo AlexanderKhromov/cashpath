@@ -13,11 +13,10 @@ class GameMapperTest {
 
     @Test
     void toGameDTO_shouldMapAllFields() {
-        LocalDate localDate = LocalDate.of(2025, 11, 20);
         Game game = new Game();
         game.setId(10L);
         game.setCurrentTurn(2);
-        game.setCurrentDay(localDate);
+        game.setCurrentDay(1);
 
         GameDTO dto = GameMapper.toGameDTO(game);
 
@@ -25,7 +24,6 @@ class GameMapperTest {
         assertEquals(2, dto.currentTurn());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate expectedDate = LocalDate.parse("2025-11-20", formatter);
-        assertEquals(expectedDate, dto.currentDay());
+        assertEquals(1, dto.currentDay());
     }
 }

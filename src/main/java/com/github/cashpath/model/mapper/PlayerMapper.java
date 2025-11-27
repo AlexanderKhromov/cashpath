@@ -15,7 +15,7 @@ public class PlayerMapper {
     public static PlayerDTO toPlayerDTO(@Nonnull Player player, double dailyCashFlow) {
 
         double passiveIncome = player.getAssets().stream()
-                .mapToDouble(Asset::getMonthlyCashFlow).sum();
+                .mapToDouble(Asset::getDailyCashFlow).sum();
         Set<LiabilityDTO> liabilities = player.getLiabilities().stream()
                 .map(LiabilityMapper::toLiabilityDTO)
                 .collect(Collectors.toUnmodifiableSet());
@@ -28,7 +28,7 @@ public class PlayerMapper {
                 player.getCash(),
                 player.getSalary(),
                 dailyCashFlow,
-                player.getMonthlyExpenses(),
+                player.getDailyExpenses(),
                 passiveIncome,
                 liabilities,
                 assets

@@ -2,6 +2,7 @@ package com.github.cashpath.util;
 
 import com.github.cashpath.model.entity.Asset;
 import com.github.cashpath.model.entity.OpportunityCard;
+import com.github.cashpath.service.impl.finance.PlayerFinanceServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ class OpportunityCardGeneratorTest {
         Asset asset = card.getAsset();
         assertNotNull(asset);
         assertTrue(asset.getPrice() >= 5_000 && asset.getPrice() <= 30_000);
-        assertTrue(asset.getMonthlyCashFlow() > 0);
+        assertTrue(asset.getDailyCashFlow() > 0);
         assertTrue(List.of(Asset.AssetType.REAL_ESTATE, Asset.AssetType.STOCK).contains(asset.getType()));
     }
 
@@ -51,7 +52,7 @@ class OpportunityCardGeneratorTest {
         assertNotNull(asset);
         assertEquals(Asset.AssetType.BUSINESS, asset.getType());
         assertTrue(asset.getPrice() >= 80_000 && asset.getPrice() <= 300_000);
-        assertTrue(asset.getMonthlyCashFlow() > 0);
+        assertTrue(asset.getDailyCashFlow() > 0);
     }
 
     // ---------- DOODAD ----------
@@ -120,10 +121,10 @@ class OpportunityCardGeneratorTest {
         double expectedRangeMin = a.getPrice() * 0.02;
         double expectedRangeMax = a.getPrice() * 0.08;
 
-        double actualAnnual = a.getMonthlyCashFlow() * 12;
+        double actualDaily = a.getDailyCashFlow();
 
-        assertTrue(actualAnnual >= expectedRangeMin);
-        assertTrue(actualAnnual <= expectedRangeMax);
+        assertTrue(actualDaily >= expectedRangeMin);
+        assertTrue(actualDaily <= expectedRangeMax);
     }
 
     @Test
@@ -135,15 +136,14 @@ class OpportunityCardGeneratorTest {
                 .orElseThrow();
 
         Asset a = card.getAsset();
-
         // If someone changes the formula — this test will break (good!)
         double expectedRangeMin = a.getPrice() * 0.08;
         double expectedRangeMax = a.getPrice() * 0.20;
 
-        double actualAnnual = a.getMonthlyCashFlow() * 12;
+        double actualDaily = a.getDailyCashFlow();
 
-        assertTrue(actualAnnual >= expectedRangeMin);
-        assertTrue(actualAnnual <= expectedRangeMax);
+        assertTrue(actualDaily >= expectedRangeMin);
+        assertTrue(actualDaily <= expectedRangeMax);
     }
 
 }

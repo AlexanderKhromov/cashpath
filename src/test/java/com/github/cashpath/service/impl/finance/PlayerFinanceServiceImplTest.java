@@ -18,7 +18,7 @@ class PlayerFinanceServiceImplTest {
     // ---------- getPassiveIncome ----------
 
     @Test
-    @DisplayName("getPassiveIncome: sums all monthlyCashFlow of Assets")
+    @DisplayName("getPassiveIncome: sums all dailyCashFlow of Assets")
     void getPassiveIncome_shouldSumAllAssetCashFlows() {
         Player player = createPlayer(10_000, 5_000, 100.0, 250.5, -50.0);
 
@@ -43,36 +43,36 @@ class PlayerFinanceServiceImplTest {
     @DisplayName("getDailyCashFlow: general case - positive flow with round")
     void getDailyCashFlow_shouldCalculatePositiveAndRound() {
         // salary = 30_000, passive = 3_000, expenses = 10_000
-        // (30_000 + 3_000 - 10_000) / 30 = 23_000 / 30 ≈ 766.666... -> 767
+        // (30_000 + 3_000 - 10_000) = 23_000
         Player player = createPlayer(30_000, 10_000, 1_000, 2_000);
 
         double daily = financeService.getDailyCashFlow(player);
 
-        assertEquals(767.0, daily);
+        assertEquals(23000.0, daily);
     }
 
     @Test
     @DisplayName("getDailyCashFlow: negative if expenses > incomes (impossible case)")
     void getDailyCashFlow_canBeNegativeWhenExpensesHigher() {
         // salary = 20_000, passive = 0, expenses = 25_000
-        // (20_000 + 0 - 25_000)/30 = -5_000/30 = -166.666... -> -167
+        // (20_000 + 0 - 25_000) = -5_000
         Player player = createPlayer(20_000, 25_000);
 
         double daily = financeService.getDailyCashFlow(player);
 
-        assertEquals(-167.0, daily);
+        assertEquals(-5000.0, daily);
     }
 
     @Test
     @DisplayName("getDailyCashFlow: for salary=0")
     void getDailyCashFlow_zeroSalary() {
         // salary = 0, passive = 3_000, expenses = 1_500
-        // (0 + 3_000 - 1_500) / 30 = 1_500/30 = 50 -> 50
+        // (0 + 3_000 - 1_500) = 1_500
         Player player = createPlayer(0, 1_500, 3_000);
 
         double daily = financeService.getDailyCashFlow(player);
 
-        assertEquals(50.0, daily);
+        assertEquals(1500.0, daily);
     }
 
     // ---------- applyCardPurchase ----------
@@ -84,7 +84,7 @@ class PlayerFinanceServiceImplTest {
         assertTrue(player.getAssets().isEmpty());
 
         Asset asset = new Asset();
-        asset.setMonthlyCashFlow(500.0);
+        asset.setDailyCashFlow(500.0);
 
         OpportunityCard card = new OpportunityCard();
         card.setAsset(asset);
@@ -116,8 +116,8 @@ class PlayerFinanceServiceImplTest {
     @Test
     @DisplayName("getDailyCashFlowById: returns Map id -> dailyCashFlow for all players")
     void getDailyCashFlowById_shouldReturnDailyFlowForAllPlayers() {
-        Player p1 = createPlayer(30_000, 10_000, 1_000);       // passive = 1_000 -> (30+1-10)/30=21/30≈700 -> 700
-        Player p2 = createPlayer(40_000, 15_000, 2_000, 1_000); // passive=3_000 -> (40+3-15)/30=28/30≈933.3 -> 933
+        Player p1 = createPlayer(30_000, 10_000, 1_000);       // passive = 1_000 -> (30+1-10)=21
+        Player p2 = createPlayer(40_000, 15_000, 2_000, 1_000); // passive=3_000 -> (40+3-15)=28
 
         p1.setId(1L);
         p2.setId(2L);
@@ -129,8 +129,8 @@ class PlayerFinanceServiceImplTest {
         Map<Long, Double> result = financeService.getDailyCashFlowById(game);
 
         assertEquals(2, result.size());
-        assertEquals(700.0, result.get(1L));
-        assertEquals(933.0, result.get(2L));
+        assertEquals(21000.0, result.get(1L));
+        assertEquals(28000.0, result.get(2L));
     }
 
     @Test
@@ -146,15 +146,15 @@ class PlayerFinanceServiceImplTest {
 
     // ---------- helpers ----------
 
-    private Player createPlayer(double salary, double monthlyExpenses, double... assetCashFlows) {
+    private Player createPlayer(double salary, double dailyExpenses, double... assetCashFlows) {
         Player player = new Player();
         player.setSalary(salary);
-        player.setMonthlyExpenses(monthlyExpenses);
+        player.setDailyExpenses(dailyExpenses);
 
         Set<Asset> assets = new HashSet<>();
         for (double cf : assetCashFlows) {
             Asset a = new Asset();
-            a.setMonthlyCashFlow(cf);
+            a.setDailyCashFlow(cf);
             assets.add(a);
         }
         player.getAssets().addAll(assets);

@@ -7,6 +7,6 @@ import jakarta.annotation.Nonnull;
 public class LiabilityMapper {
 
     public static LiabilityDTO toLiabilityDTO(@Nonnull Liability liability) {
-        return new LiabilityDTO(liability.getName(), liability.getMonthlyPayment());
+        return new LiabilityDTO(liability.getName(), liability.getDailyPayment());
     }
 }

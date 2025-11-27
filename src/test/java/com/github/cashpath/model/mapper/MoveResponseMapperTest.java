@@ -21,7 +21,7 @@ class MoveResponseMapperTest {
         Game game = new Game();
         game.setId(1L);
         game.setCurrentTurn(3);
-        game.setCurrentDay(LocalDate.of(2025, 11, 20));
+        game.setCurrentDay(1);
         game.setStatus(Game.GameStatus.ACTIVE);
 
         // --- Prepare Players ---
@@ -56,8 +56,7 @@ class MoveResponseMapperTest {
         assertEquals(1L, dto.game().id());
         assertEquals(3, dto.game().currentTurn());
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate expectedDate = LocalDate.parse("2025-11-20", formatter);
+        int expectedDate = 1;
         assertEquals(expectedDate, dto.game().currentDay());
 
         assertEquals("Bob", dto.currentPlayer().name());

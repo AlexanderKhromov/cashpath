@@ -26,7 +26,7 @@ public class Game {
     private int currentTurn;
 
     @Column(name = "current_day", nullable = false)
-    private LocalDate currentDay = LocalDate.now();
+    private int currentDay = 1;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

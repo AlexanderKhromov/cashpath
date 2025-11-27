@@ -16,15 +16,15 @@ class PlayerMapperTest {
         p.setName("Alex");
         p.setCash(2000);
         p.setSalary(3000);
-        p.setMonthlyExpenses(1500);
+        p.setDailyExpenses(1500);
 
         Asset a = new Asset();
         a.setName("Акция");
-        a.setMonthlyCashFlow(100);
+        a.setDailyCashFlow(100);
 
         Liability l = new Liability();
         l.setName("Кредит");
-        l.setMonthlyPayment(50);
+        l.setDailyPayment(50);
 
         p.getAssets().add(a);
         p.getLiabilities().add(l);

@@ -33,6 +33,6 @@ class OpportunityServiceIntegrationTest {
         boolean result2 = service.tryMarkBought(card);
 
         assertTrue(result1);
-        assertFalse(result2, "Карта не должна покупаться повторно");
+        assertFalse(result2, "Card must not be available for buying again");
     }
 }

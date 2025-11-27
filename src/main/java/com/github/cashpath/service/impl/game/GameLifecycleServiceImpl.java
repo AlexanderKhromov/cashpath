@@ -54,8 +54,8 @@ public class GameLifecycleServiceImpl implements GameLifecycleService {
         liabilities.forEach(l -> l.setOwner(player));
 
         player.getLiabilities().addAll(liabilities);
-        player.setMonthlyExpenses(liabilities.stream()
-                .mapToDouble(Liability::getMonthlyPayment)
+        player.setDailyExpenses(liabilities.stream()
+                .mapToDouble(Liability::getDailyPayment)
                 .sum());
     }
 
@@ -66,7 +66,7 @@ public class GameLifecycleServiceImpl implements GameLifecycleService {
         if (players.isEmpty()) throw new PlayersNotFoundInException(game.getId());
 
         game.setCurrentTurn((game.getCurrentTurn() + 1) % players.size());
-        game.setCurrentDay(game.getCurrentDay().plusDays(1));
+        game.setCurrentDay(game.getCurrentDay() + 1);
 
         gameRepository.save(game);
     }
@@ -77,8 +77,8 @@ public class GameLifecycleServiceImpl implements GameLifecycleService {
     @Override
     public boolean checkWinCondition(Player player) {
         double passiveIncome = player.getAssets().stream()
-                .mapToDouble(Asset::getMonthlyCashFlow)
+                .mapToDouble(Asset::getDailyCashFlow)
                 .sum();
-        return passiveIncome >= player.getMonthlyExpenses();
+        return passiveIncome >= player.getDailyExpenses();
     }
 }

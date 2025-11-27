@@ -19,8 +19,8 @@ public class Asset {
 
     @Column(nullable = false)
     private double price;
-    @Column(name = "monthly_cash_flow")
-    private double monthlyCashFlow;
+    @Column(name = "daily_cash_flow")
+    private double dailyCashFlow;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
