@@ -39,8 +39,7 @@ public class MoveFacadeServiceImpl implements MoveFacadeService {
     public MoveResponseDTO buy(Long gameId, BuyRequestDTO request) {
 
         Game game = gameLifecycleService.getGame(gameId);
-
-        Player currentPlayer = game.getPlayers().get(game.getCurrentTurn());
+        Player currentPlayer = financeService.getCurrentPlayer(game);
         Long currentPlayerId = currentPlayer.getId();
         currentPlayer = playerRepository.findById(currentPlayerId).orElseThrow(()
                 -> new PlayerNotFoundException(currentPlayerId));
@@ -58,16 +57,14 @@ public class MoveFacadeServiceImpl implements MoveFacadeService {
             financeService.applyCardPurchase(currentPlayer, card);
         }
 
-        double dailyFlow = financeService.getDailyCashFlow(currentPlayer);
-        currentPlayer.setCash(currentPlayer.getCash() + dailyFlow - card.getAmount());
         playerRepository.save(currentPlayer);
 
         if (gameLifecycleService.checkWinCondition(currentPlayer)) {
             game.setStatus(Game.GameStatus.FINISHED);
         }
 
+        gameLifecycleService.buyCard(currentPlayer, card);
         gameLifecycleService.switchTurn(game);
-
         return buildMoveResponse(game);
     }
 

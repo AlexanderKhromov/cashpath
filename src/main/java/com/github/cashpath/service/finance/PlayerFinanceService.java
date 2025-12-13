@@ -22,4 +22,5 @@ public interface PlayerFinanceService {
 
     Map<Long, Double> getDailyCashFlowById(Game game);
 
+    Player getCurrentPlayer(Game game);
 }

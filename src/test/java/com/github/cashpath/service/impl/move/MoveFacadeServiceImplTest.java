@@ -5,7 +5,6 @@ import com.github.cashpath.model.dto.MoveResponseDTO;
 import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.OpportunityCard;
 import com.github.cashpath.model.entity.Player;
-import com.github.cashpath.repository.GameRepository;
 import com.github.cashpath.repository.PlayerRepository;
 import com.github.cashpath.service.finance.PlayerFinanceService;
 import com.github.cashpath.service.game.GameLifecycleService;
@@ -24,9 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class MoveFacadeServiceImplTest {
-
-    @Mock
-    private GameRepository gameRepository;
 
     @Mock
     private PlayerRepository playerRepository;
@@ -75,7 +71,7 @@ class MoveFacadeServiceImplTest {
         when(opportunityService.getCardOrThrow(1L)).thenReturn(card);
         when(opportunityService.getRandomCard()).thenReturn(card);
         when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
-
+        when(financeService.getCurrentPlayer(game)).thenReturn(player);
         MoveResponseDTO response = service.buy(1L, new BuyRequestDTO(1L));
 
         assertNotNull(response);
@@ -94,11 +90,11 @@ class MoveFacadeServiceImplTest {
         when(financeService.getDailyCashFlowById(game)).thenReturn(Map.of(player.getId(), 100.0));
         when(opportunityService.getRandomCard()).thenReturn(card);
         when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
+        when(financeService.getCurrentPlayer(game)).thenReturn(player);
 
         MoveResponseDTO response = service.buy(1L, new BuyRequestDTO(1L));
 
         assertNotNull(response);
-        assertEquals(1000.0 + 100.0 - 500.0, player.getCash());
         verify(financeService).applyCardPurchase(player, card);
         verify(playerRepository).save(player);
         verify(gameLifecycleService).switchTurn(game);
@@ -111,7 +107,7 @@ class MoveFacadeServiceImplTest {
         when(financeService.getDailyCashFlowById(game)).thenReturn(Map.of(player.getId(), 100.0));
         when(opportunityService.getRandomCard()).thenReturn(card);
         when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
-
+        when(financeService.getCurrentPlayer(game)).thenReturn(player);
         MoveResponseDTO response = service.endTurn(1L);
 
         assertNotNull(response);

@@ -2,11 +2,9 @@ package com.github.cashpath.service.impl.game;
 
 import com.github.cashpath.exception.GameNotFoundException;
 import com.github.cashpath.exception.PlayersNotFoundInException;
-import com.github.cashpath.model.entity.Asset;
-import com.github.cashpath.model.entity.Game;
-import com.github.cashpath.model.entity.Liability;
-import com.github.cashpath.model.entity.Player;
+import com.github.cashpath.model.entity.*;
 import com.github.cashpath.repository.GameRepository;
+import com.github.cashpath.service.finance.PlayerFinanceService;
 import com.github.cashpath.service.game.GameLifecycleService;
 import com.github.cashpath.util.PlayerInitializer;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +22,7 @@ import java.util.Set;
 public class GameLifecycleServiceImpl implements GameLifecycleService {
     private final GameRepository gameRepository;
     private final PlayerInitializer initializer;
+    private final PlayerFinanceService financeService;
 
     @Override
     public Game getGame(Long gameId) {
@@ -64,11 +63,22 @@ public class GameLifecycleServiceImpl implements GameLifecycleService {
     public void switchTurn(Game game) {
         List<Player> players = game.getPlayers();
         if (players.isEmpty()) throw new PlayersNotFoundInException(game.getId());
-
+        Player currentPlayer = financeService.getCurrentPlayer(game);
+        updateCash(currentPlayer);
         game.setCurrentTurn((game.getCurrentTurn() + 1) % players.size());
         game.setCurrentDay(game.getCurrentDay() + 1);
 
         gameRepository.save(game);
+    }
+
+    private void updateCash(Player player) {
+        double dailyFlow = financeService.getDailyCashFlow(player);
+        player.setCash(player.getCash() + dailyFlow);
+    }
+
+    @Override
+    public void buyCard(Player player, OpportunityCard card) {
+        player.setCash(player.getCash() - card.getAmount());
     }
 
     /**

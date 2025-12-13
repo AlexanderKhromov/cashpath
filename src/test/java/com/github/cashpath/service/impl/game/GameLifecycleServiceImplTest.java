@@ -8,6 +8,7 @@ import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.Liability;
 import com.github.cashpath.model.entity.Player;
 import com.github.cashpath.repository.GameRepository;
+import com.github.cashpath.service.finance.PlayerFinanceService;
 import com.github.cashpath.util.PlayerInitializer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,9 +24,10 @@ import static org.mockito.Mockito.*;
 class GameLifecycleServiceImplTest {
     private final GameRepository gameRepository = mock(GameRepository.class);
     private final PlayerInitializer initializer = mock(PlayerInitializer.class);
+    private final PlayerFinanceService financeService = mock(PlayerFinanceService.class);
 
     private final GameLifecycleServiceImpl service =
-            new GameLifecycleServiceImpl(gameRepository, initializer);
+            new GameLifecycleServiceImpl(gameRepository, initializer, financeService);
 
     // -------- createGame --------
 
@@ -67,6 +69,7 @@ class GameLifecycleServiceImplTest {
         game.addPlayer(c);
         game.setCurrentTurn(0);
         game.setCurrentDay(1);
+        when(financeService.getCurrentPlayer(game)).thenReturn(a);
 
         when(gameRepository.save(any(Game.class))).thenAnswer(i -> i.getArgument(0));
 

@@ -1,7 +1,7 @@
 package com.github.cashpath.service.game;
 
-import com.github.cashpath.exception.GameNotFoundException;
 import com.github.cashpath.model.entity.Game;
+import com.github.cashpath.model.entity.OpportunityCard;
 import com.github.cashpath.model.entity.Player;
 import org.springframework.stereotype.Service;
 
@@ -21,4 +21,6 @@ public interface GameLifecycleService {
     void switchTurn(Game game);
 
     boolean checkWinCondition(Player player);
+
+    void buyCard(Player player, OpportunityCard card);
 }

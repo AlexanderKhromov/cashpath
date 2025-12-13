@@ -50,4 +50,9 @@ public class PlayerFinanceServiceImpl implements PlayerFinanceService {
                         this::getDailyCashFlow
                 ));
     }
+
+    @Override
+    public Player getCurrentPlayer(Game game) {
+        return game.getPlayers().get(game.getCurrentTurn());
+    }
 }
