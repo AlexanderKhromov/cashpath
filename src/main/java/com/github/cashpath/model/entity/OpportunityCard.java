@@ -41,12 +41,9 @@ public class OpportunityCard {
     @Column(name = "is_available", nullable = false)
     private boolean isAvailable = true;
 
-    /**
-     * To mark that card is no more available (e.g. business is bought by someone)
-     */
-    public void markAsUnavailable() {
-        this.isAvailable = false;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "game_id")
+    private Game game;
 
     //DOODAD means buying some product that does not bring you passive income
     public enum OpportunityType {

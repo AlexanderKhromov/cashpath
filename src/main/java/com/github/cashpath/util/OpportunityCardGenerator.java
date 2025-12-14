@@ -11,19 +11,19 @@ import java.util.Random;
 public class OpportunityCardGenerator {
     private static final Random RANDOM = new Random();
 
-    private static final int CARD_COUNT = 100;
+    private static final int CARD_COUNT = 1000;
 
     // SMALL DEAL constants
     private static final double SMALL_MIN_PRICE = 5_000;
     private static final double SMALL_MAX_PRICE = 30_000;
-    private static final double SMALL_MIN_ROI = 0.02;
-    private static final double SMALL_MAX_ROI = 0.08;
+    private static final double SMALL_MIN_ROI = 0.07;
+    private static final double SMALL_MAX_ROI = 0.12;
 
     // BIG DEAL constants
     private static final double BIG_MIN_PRICE = 80_000;
     private static final double BIG_MAX_PRICE = 300_000;
-    private static final double BIG_MIN_ROI = 0.08;
-    private static final double BIG_MAX_ROI = 0.20;
+    private static final double BIG_MIN_ROI = 0.15;
+    private static final double BIG_MAX_ROI = 0.25;
 
     // DOODAD constants
     private static final double DOODAD_MIN_COST = 3_000;

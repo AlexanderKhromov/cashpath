@@ -5,8 +5,9 @@ const spinner = document.getElementById('spinner');
 function updateGame(data) {
     console.log("MoveResponseDTO:", data);
 
-    // update current player name
+    // update current player name and current day
     document.getElementById("activePlayerName").innerText = data.currentPlayer.name;
+    document.getElementById("currentDay").innerText = data.game.currentDay;
 
     // updating data for all players
     data.players.forEach(player => {

@@ -2,6 +2,8 @@
 -- V1__init.sql
 -- Initialization for project CashPath
 -- ===========================================
+CREATE SCHEMA IF NOT EXISTS public;
+SET search_path TO public;
 
 CREATE TABLE games (
     id BIGSERIAL PRIMARY KEY,

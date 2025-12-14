@@ -1,6 +1,5 @@
 package com.github.cashpath.service.impl.move;
 
-import com.github.cashpath.exception.GameNotFoundException;
 import com.github.cashpath.exception.PlayerNotFoundException;
 import com.github.cashpath.model.dto.BuyRequestDTO;
 import com.github.cashpath.model.dto.MoveResponseDTO;
@@ -8,7 +7,6 @@ import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.OpportunityCard;
 import com.github.cashpath.model.entity.Player;
 import com.github.cashpath.model.mapper.MoveResponseMapper;
-import com.github.cashpath.repository.GameRepository;
 import com.github.cashpath.repository.PlayerRepository;
 import com.github.cashpath.service.finance.PlayerFinanceService;
 import com.github.cashpath.service.game.GameLifecycleService;
@@ -27,9 +25,7 @@ import java.util.Map;
 @Log4j2
 public class MoveFacadeServiceImpl implements MoveFacadeService {
 
-    private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
-
     private final GameLifecycleService gameLifecycleService;
     private final PlayerFinanceService financeService;
     private final OpportunityService opportunityService;
@@ -44,27 +40,30 @@ public class MoveFacadeServiceImpl implements MoveFacadeService {
         currentPlayer = playerRepository.findById(currentPlayerId).orElseThrow(()
                 -> new PlayerNotFoundException(currentPlayerId));
 
-        OpportunityCard card = opportunityService.getCardOrThrow(request.cardId());
+        OpportunityCard card = opportunityService.getCardOrThrow(gameId, request.cardId());
 
+        //TODO place for future improvement
         if (currentPlayer.getCash() < card.getAmount()) {
             gameLifecycleService.switchTurn(game);
             return buildMoveResponse(game);
         }
 
-        opportunityService.tryMarkBought(card);
-
-        if (isDeal(card)) {
-            financeService.applyCardPurchase(currentPlayer, card);
+        boolean bought = opportunityService.tryMarkBought(gameId, card);
+        if (!bought) {
+            gameLifecycleService.switchTurn(game);
+            return buildMoveResponse(game);
         }
 
-        playerRepository.save(currentPlayer);
-
-        if (gameLifecycleService.checkWinCondition(currentPlayer)) {
-            game.setStatus(Game.GameStatus.FINISHED);
+        if (isDeal(card)) {
+            financeService.setOwner(currentPlayer, card);
         }
 
         gameLifecycleService.buyCard(currentPlayer, card);
         gameLifecycleService.switchTurn(game);
+
+        if (gameLifecycleService.checkWinCondition(currentPlayer)) {
+            game.setStatus(Game.GameStatus.FINISHED);
+        }
         return buildMoveResponse(game);
     }
 
@@ -77,13 +76,13 @@ public class MoveFacadeServiceImpl implements MoveFacadeService {
     }
 
     private MoveResponseDTO buildMoveResponse(Game game) {
-        Player currentPlayer = game.getPlayers().get(game.getCurrentTurn());
-        Player updatedPlayer = playerRepository.findById(currentPlayer.getId()).orElseThrow(()
+        Player currentPlayer = financeService.getCurrentPlayer(game);
+        Player savedPlayer = playerRepository.findById(currentPlayer.getId()).orElseThrow(()
                 -> new PlayerNotFoundException(currentPlayer.getId()));
-        OpportunityCard card = opportunityService.getRandomCard();
-        Game updatedGame  = gameLifecycleService.getGame(game.getId());
-        Map<Long, Double> dailyCashFlowById = financeService.getDailyCashFlowById(updatedGame);
-        return MoveResponseMapper.toMoveResponseDTO(updatedGame, updatedPlayer, card, dailyCashFlowById);
+        OpportunityCard card = opportunityService.getRandomCard(game.getId());
+        Game savedGame  = gameLifecycleService.getGame(game.getId());
+        Map<Long, Double> dailyCashFlowById = financeService.getDailyCashFlowById(savedGame);
+        return MoveResponseMapper.toMoveResponseDTO(savedGame, savedPlayer, card, dailyCashFlowById);
     }
 
     private boolean isDeal(OpportunityCard card) {

@@ -1,5 +1,6 @@
 package com.github.cashpath.service.opportunity;
 
+import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.OpportunityCard;
 import org.springframework.stereotype.Service;
 
@@ -9,10 +10,12 @@ import org.springframework.stereotype.Service;
 @Service
 public interface OpportunityService {
 
-    OpportunityCard getRandomCard();
+    OpportunityCard getRandomCard(Long gameId);
 
-    OpportunityCard getCardOrThrow(Long id);
+    OpportunityCard getCardOrThrow(Long gameId, Long id);
 
-    boolean tryMarkBought(OpportunityCard card);
+    boolean tryMarkBought(Long gameId, OpportunityCard card);
+
+    void initCardsForGame(Game game);
 
 }

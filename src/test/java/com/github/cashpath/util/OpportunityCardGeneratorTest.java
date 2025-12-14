@@ -115,16 +115,11 @@ class OpportunityCardGeneratorTest {
                 .findFirst()
                 .orElseThrow();
 
-        Asset a = card.getAsset();
-
-        // If someone changes the formula — this test will break (good!)
-        double expectedRangeMin = a.getPrice() * 0.02;
-        double expectedRangeMax = a.getPrice() * 0.08;
-
-        double actualDaily = a.getDailyCashFlow();
-
-        assertTrue(actualDaily >= expectedRangeMin);
-        assertTrue(actualDaily <= expectedRangeMax);
+        double price = card.getAsset().getPrice();
+        double dailyCashFlow = card.getAsset().getDailyCashFlow();
+        double roi = dailyCashFlow / price;
+        assertTrue(roi >= 0.07,"ROI is lower then acceptable min");
+        assertTrue(roi <= 0.12, "ROI is bigger then acceptable max");
     }
 
     @Test
@@ -138,7 +133,7 @@ class OpportunityCardGeneratorTest {
         Asset a = card.getAsset();
         // If someone changes the formula — this test will break (good!)
         double expectedRangeMin = a.getPrice() * 0.08;
-        double expectedRangeMax = a.getPrice() * 0.20;
+        double expectedRangeMax = a.getPrice() * 0.25;
 
         double actualDaily = a.getDailyCashFlow();
 

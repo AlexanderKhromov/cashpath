@@ -18,7 +18,7 @@ public interface PlayerFinanceService {
 
     double getPassiveIncome(Player player);
 
-    void applyCardPurchase(Player player, OpportunityCard card);
+    void setOwner(Player player, OpportunityCard card);
 
     Map<Long, Double> getDailyCashFlowById(Game game);
 

@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Log4j2
+//TODO rename current service class to FinanceService
 public class PlayerFinanceServiceImpl implements PlayerFinanceService {
 
     @Override
@@ -32,9 +33,10 @@ public class PlayerFinanceServiceImpl implements PlayerFinanceService {
         return Math.round((player.getSalary() + passive - player.getDailyExpenses()));
     }
 
+    //TODO extract to PlayerService
     @Transactional
     @Override
-    public void applyCardPurchase(Player player, OpportunityCard card) {
+    public void setOwner(Player player, OpportunityCard card) {
         Asset asset = card.getAsset();
         if (asset != null) {
             asset.setOwner(player);
@@ -51,6 +53,7 @@ public class PlayerFinanceServiceImpl implements PlayerFinanceService {
                 ));
     }
 
+    //TODO extract to PlayerService
     @Override
     public Player getCurrentPlayer(Game game) {
         return game.getPlayers().get(game.getCurrentTurn());

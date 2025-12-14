@@ -55,7 +55,9 @@ public class MoveFacadeServiceIntegrationTest {
         game.addPlayer(player);
         game = gameRepository.save(game);
 
-        card = opportunityService.getRandomCard();
+        opportunityService.initCardsForGame(game);
+
+        card = opportunityService.getRandomCard(game.getId());
     }
 
     @Test

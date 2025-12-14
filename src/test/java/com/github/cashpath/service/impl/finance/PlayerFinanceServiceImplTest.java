@@ -79,7 +79,7 @@ class PlayerFinanceServiceImplTest {
 
     @Test
     @DisplayName("applyCardPurchase: add asset to player and sets owner to asset")
-    void applyCardPurchase_shouldAttachAssetToPlayerAndSetOwner() {
+    void setOwner_shouldAttachAssetToPlayerAndSetOwner() {
         Player player = createPlayer(20_000, 5_000);
         assertTrue(player.getAssets().isEmpty());
 
@@ -89,7 +89,7 @@ class PlayerFinanceServiceImplTest {
         OpportunityCard card = new OpportunityCard();
         card.setAsset(asset);
 
-        financeService.applyCardPurchase(player, card);
+        financeService.setOwner(player, card);
 
         assertEquals(1, player.getAssets().size());
         Asset saved = player.getAssets().iterator().next();
@@ -106,7 +106,7 @@ class PlayerFinanceServiceImplTest {
         OpportunityCard card = new OpportunityCard();
         card.setAsset(null);
 
-        financeService.applyCardPurchase(player, card);
+        financeService.setOwner(player, card);
 
         assertEquals(before, player.getAssets().size());
     }

@@ -8,14 +8,14 @@ import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.Liability;
 import com.github.cashpath.model.entity.Player;
 import com.github.cashpath.repository.GameRepository;
+import com.github.cashpath.repository.OpportunityCardRepository;
 import com.github.cashpath.service.finance.PlayerFinanceService;
+import com.github.cashpath.service.opportunity.OpportunityService;
 import com.github.cashpath.util.PlayerInitializer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -25,9 +25,10 @@ class GameLifecycleServiceImplTest {
     private final GameRepository gameRepository = mock(GameRepository.class);
     private final PlayerInitializer initializer = mock(PlayerInitializer.class);
     private final PlayerFinanceService financeService = mock(PlayerFinanceService.class);
+    private final OpportunityService opportunityService = mock(OpportunityService.class);
 
     private final GameLifecycleServiceImpl service =
-            new GameLifecycleServiceImpl(gameRepository, initializer, financeService);
+            new GameLifecycleServiceImpl(gameRepository, initializer, financeService, opportunityService);
 
     // -------- createGame --------
 

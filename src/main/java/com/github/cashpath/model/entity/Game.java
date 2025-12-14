@@ -19,7 +19,8 @@ public class Game {
     private Long id;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Setter(AccessLevel.PRIVATE)
+    @Setter(AccessLevel.NONE)
+    @OrderColumn(name = "turn_index")
     private List<Player> players = new ArrayList<>();
 
     @Column(name = "current_turn")

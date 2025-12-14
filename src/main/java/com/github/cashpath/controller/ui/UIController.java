@@ -45,7 +45,7 @@ public class UIController {
     @GetMapping("/game/{id}")
     public String gamePage(@PathVariable Long id, Model model) {
         Game game = gameLifecycleService.getGame(id);
-        OpportunityCard opportunityCard = opportunityService.getRandomCard();
+        OpportunityCard opportunityCard = opportunityService.getRandomCard(id);
         MoveResponseDTO moveResponseDTO = MoveResponseMapper.toMoveResponseDTO(game, game.getPlayers().getFirst(), opportunityCard, financeService.getDailyCashFlowById(game));
         model.addAttribute("data", moveResponseDTO);
         return "game/game-board";

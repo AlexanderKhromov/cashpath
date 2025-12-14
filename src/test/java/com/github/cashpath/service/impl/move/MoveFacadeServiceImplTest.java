@@ -68,15 +68,15 @@ class MoveFacadeServiceImplTest {
     void testBuyInsufficientCash() {
         player.setCash(100.0);
         when(gameLifecycleService.getGame(1L)).thenReturn(game);
-        when(opportunityService.getCardOrThrow(1L)).thenReturn(card);
-        when(opportunityService.getRandomCard()).thenReturn(card);
+        when(opportunityService.getCardOrThrow(1L, 1L)).thenReturn(card);
+        when(opportunityService.getRandomCard(1L)).thenReturn(card);
         when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
         when(financeService.getCurrentPlayer(game)).thenReturn(player);
         MoveResponseDTO response = service.buy(1L, new BuyRequestDTO(1L));
 
         assertNotNull(response);
         verify(gameLifecycleService).switchTurn(game);
-        verify(financeService, never()).applyCardPurchase(any(), any());
+        verify(financeService, never()).setOwner(any(), any());
         verify(playerRepository, never()).save(any());
     }
 
@@ -84,19 +84,18 @@ class MoveFacadeServiceImplTest {
     @DisplayName("buy applies card purchase and updates player cash")
     void testBuySuccess() {
         when(gameLifecycleService.getGame(1L)).thenReturn(game);
-        when(opportunityService.getCardOrThrow(1L)).thenReturn(card);
-        when(opportunityService.tryMarkBought(card)).thenReturn(true);
+        when(opportunityService.getCardOrThrow(1L,1L)).thenReturn(card);
+        when(opportunityService.tryMarkBought(1L, card)).thenReturn(true);
         when(financeService.getDailyCashFlow(player)).thenReturn(100.0);
         when(financeService.getDailyCashFlowById(game)).thenReturn(Map.of(player.getId(), 100.0));
-        when(opportunityService.getRandomCard()).thenReturn(card);
+        when(opportunityService.getRandomCard(1L)).thenReturn(card);
         when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
         when(financeService.getCurrentPlayer(game)).thenReturn(player);
 
         MoveResponseDTO response = service.buy(1L, new BuyRequestDTO(1L));
 
         assertNotNull(response);
-        verify(financeService).applyCardPurchase(player, card);
-        verify(playerRepository).save(player);
+        verify(financeService).setOwner(player, card);
         verify(gameLifecycleService).switchTurn(game);
     }
 
@@ -105,7 +104,7 @@ class MoveFacadeServiceImplTest {
     void testEndTurnSuccess() {
         when(gameLifecycleService.getGame(1L)).thenReturn(game);
         when(financeService.getDailyCashFlowById(game)).thenReturn(Map.of(player.getId(), 100.0));
-        when(opportunityService.getRandomCard()).thenReturn(card);
+        when(opportunityService.getRandomCard(1L)).thenReturn(card);
         when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
         when(financeService.getCurrentPlayer(game)).thenReturn(player);
         MoveResponseDTO response = service.endTurn(1L);

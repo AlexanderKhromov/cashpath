@@ -4,8 +4,10 @@ import com.github.cashpath.exception.GameNotFoundException;
 import com.github.cashpath.exception.PlayersNotFoundInException;
 import com.github.cashpath.model.entity.*;
 import com.github.cashpath.repository.GameRepository;
+import com.github.cashpath.repository.OpportunityCardRepository;
 import com.github.cashpath.service.finance.PlayerFinanceService;
 import com.github.cashpath.service.game.GameLifecycleService;
+import com.github.cashpath.service.opportunity.OpportunityService;
 import com.github.cashpath.util.PlayerInitializer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -23,6 +25,7 @@ public class GameLifecycleServiceImpl implements GameLifecycleService {
     private final GameRepository gameRepository;
     private final PlayerInitializer initializer;
     private final PlayerFinanceService financeService;
+    private final OpportunityService opportunityService;
 
     @Override
     public Game getGame(Long gameId) {
@@ -34,28 +37,14 @@ public class GameLifecycleServiceImpl implements GameLifecycleService {
     public Game createGame(List<Player> players) {
         Game game = new Game();
         game.setStatus(Game.GameStatus.ACTIVE);
-        //game.setCurrentTurn(0); //currentTurn is int so default is 0
 
         for (Player p : players) {
             initPlayer(p);
             game.addPlayer(p);
         }
-
-        return gameRepository.save(game);
-    }
-
-    private void initPlayer(Player player) {
-        double salary = initializer.generateRandomSalary();
-        player.setSalary(salary);
-        player.setCash(initializer.generateRandomCash(salary));
-
-        Set<Liability> liabilities = initializer.generateLiabilities(salary);
-        liabilities.forEach(l -> l.setOwner(player));
-
-        player.getLiabilities().addAll(liabilities);
-        player.setDailyExpenses(liabilities.stream()
-                .mapToDouble(Liability::getDailyPayment)
-                .sum());
+        Game savedGame = gameRepository.save(game);
+        opportunityService.initCardsForGame(savedGame);
+        return savedGame;
     }
 
     @Transactional
@@ -64,16 +53,16 @@ public class GameLifecycleServiceImpl implements GameLifecycleService {
         List<Player> players = game.getPlayers();
         if (players.isEmpty()) throw new PlayersNotFoundInException(game.getId());
         Player currentPlayer = financeService.getCurrentPlayer(game);
+
+        int nextTurn = (game.getCurrentTurn() + 1) % players.size();
+        game.setCurrentTurn(nextTurn);
+
         updateCash(currentPlayer);
-        game.setCurrentTurn((game.getCurrentTurn() + 1) % players.size());
-        game.setCurrentDay(game.getCurrentDay() + 1);
+        if (nextTurn == 0) {
+            game.setCurrentDay(game.getCurrentDay() + 1);
+        }
 
         gameRepository.save(game);
-    }
-
-    private void updateCash(Player player) {
-        double dailyFlow = financeService.getDailyCashFlow(player);
-        player.setCash(player.getCash() + dailyFlow);
     }
 
     @Override
@@ -90,5 +79,24 @@ public class GameLifecycleServiceImpl implements GameLifecycleService {
                 .mapToDouble(Asset::getDailyCashFlow)
                 .sum();
         return passiveIncome >= player.getDailyExpenses();
+    }
+
+    private void initPlayer(Player player) {
+        double salary = initializer.generateRandomSalary();
+        player.setSalary(salary);
+        player.setCash(initializer.generateRandomCash(salary));
+
+        Set<Liability> liabilities = initializer.generateLiabilities(salary);
+        liabilities.forEach(l -> l.setOwner(player));
+
+        player.getLiabilities().addAll(liabilities);
+        player.setDailyExpenses(liabilities.stream()
+                .mapToDouble(Liability::getDailyPayment)
+                .sum());
+    }
+
+    private void updateCash(Player player) {
+        double dailyFlow = financeService.getDailyCashFlow(player);
+        player.setCash(player.getCash() + dailyFlow);
     }
 }

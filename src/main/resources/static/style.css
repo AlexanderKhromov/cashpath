@@ -1,6 +1,6 @@
 <style>
 /* ======================= */
-/* Базовые стили страницы */
+/* Page base styles */
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
@@ -48,7 +48,7 @@ button:hover {
 }
 
 /* ======================= */
-/* Анимация спиннера */
+/* Spinner animation */
 @keyframes bouncedelay {
     0%, 80%, 100% { transform: scale(0); }
     40% { transform: scale(1.0); }
@@ -73,7 +73,7 @@ button:hover {
 .spinner .bounce2 { animation-delay: -0.16s; }
 
 /* ======================= */
-/* Прозрачное появление элементов */
+/* Elements opacity */
 .fade-in {
     opacity: 0;
     transition: opacity 0.6s ease-in;
@@ -84,32 +84,40 @@ button:hover {
 }
 
 /* ======================= */
-/* Активный игрок */
+/* Active player */
 .active-player-name {
     font-weight: bold;
     font-size: 1.4em;
 }
-
 /* ======================= */
-/* Игроки — две колонки */
+/* Buttons */
+.controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;            /* gap between buttons */
+    justify-content: flex-start; /* by left side */
+    align-items: center;
+}
+/* ======================= */
+/* Players — two columns */
 .players-row {
     display: flex;
-    justify-content: space-between; /* слева и справа */
-    flex-wrap: wrap; /* перенос на новую строку при маленькой ширине */
+    justify-content: space-between; /* left and right */
+    flex-wrap: wrap; /* go to next line if line too short */
     gap: 20px;
     width: 100%;
     box-sizing: border-box;
 }
 
 .player-card {
-    flex: 0 1 48%; /* половина контейнера */
-    min-width: 300px; /* минимальная ширина для мобильных */
+    flex: 0 1 48%; /* half of cpontainer */
+    min-width: 300px; /* min width for mobile devices */
     border: 1px solid #ccc;
     border-radius: 10px;
     padding: 15px;
     background: #fff;
     box-sizing: border-box;
-    margin-bottom: 20px; /* вертикальный отступ между рядами */
+    margin-bottom: 20px; /* vertical gap between rows */
 }
 
 .player-card table {
@@ -122,10 +130,10 @@ button:hover {
     margin-top: 10px;
 }
 /* ======================= */
-/* Адаптивность для мобильных экранов */
+/* Adaptivity for mobile screens */
 @media (max-width: 650px) {
     .player-card {
-        flex: 0 1 100%; /* одна колонка */
+        flex: 0 1 100%; /* 1 column */
     }
 }
 </style>
