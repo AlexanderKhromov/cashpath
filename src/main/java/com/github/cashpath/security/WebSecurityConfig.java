@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,6 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Log4j2
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class WebSecurityConfig {
 
     @Value("${spring.security.user.name}")
@@ -46,21 +48,40 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-    // 🔐 PROD — with CSRF and Basic Auth
+    /**
+     * PROD profile
+     * -----------------------------
+     * - /admin/** → only ADMIN
+     * - rest → public
+     * - formLogin
+     * - CSRF enabled (bu default)
+     */
     @Bean
     @Profile("prod")
     public SecurityFilterChain prodSecurity(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/**").authenticated() //protecting API
+                        .requestMatchers(
+                                "/admin/**"
+                        ).hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
-                .httpBasic(Customizer.withDefaults());// Basic Auth for API
-
-        log.info("🔒 PROD security mode: CSRF enabled, authentication required.");
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/admin", true)
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                );
+        log.info("🔒 PROD security mode: ADMIN protected area enabled.");
         return http.build();
     }
 
+    /**
+     * In-memory ADMIN user
+     */
     @Bean
     @Profile("prod")
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
