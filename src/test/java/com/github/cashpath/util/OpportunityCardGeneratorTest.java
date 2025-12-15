@@ -118,7 +118,7 @@ class OpportunityCardGeneratorTest {
         double price = card.getAsset().getPrice();
         double dailyCashFlow = card.getAsset().getDailyCashFlow();
         double roi = dailyCashFlow / price;
-        assertTrue(roi >= 0.07,"ROI is lower then acceptable min");
+        assertTrue(roi >= 0.07, "ROI is lower then acceptable min");
         assertTrue(roi <= 0.12, "ROI is bigger then acceptable max");
     }
 

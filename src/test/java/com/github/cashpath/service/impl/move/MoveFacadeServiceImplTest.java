@@ -84,7 +84,7 @@ class MoveFacadeServiceImplTest {
     @DisplayName("buy applies card purchase and updates player cash")
     void testBuySuccess() {
         when(gameLifecycleService.getGame(1L)).thenReturn(game);
-        when(opportunityService.getCardOrThrow(1L,1L)).thenReturn(card);
+        when(opportunityService.getCardOrThrow(1L, 1L)).thenReturn(card);
         when(opportunityService.tryMarkBought(1L, card)).thenReturn(true);
         when(financeService.getDailyCashFlow(player)).thenReturn(100.0);
         when(financeService.getDailyCashFlowById(game)).thenReturn(Map.of(player.getId(), 100.0));

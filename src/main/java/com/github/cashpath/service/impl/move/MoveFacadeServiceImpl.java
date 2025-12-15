@@ -80,7 +80,7 @@ public class MoveFacadeServiceImpl implements MoveFacadeService {
         Player savedPlayer = playerRepository.findById(currentPlayer.getId()).orElseThrow(()
                 -> new PlayerNotFoundException(currentPlayer.getId()));
         OpportunityCard card = opportunityService.getRandomCard(game.getId());
-        Game savedGame  = gameLifecycleService.getGame(game.getId());
+        Game savedGame = gameLifecycleService.getGame(game.getId());
         Map<Long, Double> dailyCashFlowById = financeService.getDailyCashFlowById(savedGame);
         return MoveResponseMapper.toMoveResponseDTO(savedGame, savedPlayer, card, dailyCashFlowById);
     }

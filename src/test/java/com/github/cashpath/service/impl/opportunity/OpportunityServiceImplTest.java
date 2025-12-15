@@ -57,7 +57,7 @@ class OpportunityServiceImplTest {
     void testGetCardOrThrowFound() {
         when(cardRepository.findByIdAndGameId(1L, game.getId())).thenReturn(Optional.of(sampleCard));
 
-        OpportunityCard result = service.getCardOrThrow(game.getId(),1L);
+        OpportunityCard result = service.getCardOrThrow(game.getId(), 1L);
 
         assertNotNull(result);
         assertEquals(sampleCard.getId(), result.getId());
@@ -69,7 +69,7 @@ class OpportunityServiceImplTest {
     void testGetCardOrThrowNotFound() {
         when(cardRepository.findById(2L)).thenReturn(Optional.empty());
 
-        assertThrows(OpportunityCardNotFoundException.class, () -> service.getCardOrThrow(1L,2L));
+        assertThrows(OpportunityCardNotFoundException.class, () -> service.getCardOrThrow(1L, 2L));
 
         verify(cardRepository, times(1)).findByIdAndGameId(2L, 1L);
     }

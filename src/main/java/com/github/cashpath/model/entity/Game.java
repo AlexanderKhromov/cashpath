@@ -32,12 +32,12 @@ public class Game {
     @Column(nullable = false)
     private GameStatus status;
 
-    public enum GameStatus {
-        ACTIVE, FINISHED
-    }
-
     public void addPlayer(Player player) {
         player.setGame(this);
         players.add(player);
+    }
+
+    public enum GameStatus {
+        ACTIVE, FINISHED
     }
 }

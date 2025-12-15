@@ -17,7 +17,7 @@ public class MoveResponseMapper {
         List<PlayerDTO> players = game.getPlayers().stream()
                 .map(p -> PlayerMapper.toPlayerDTO(p, dailyCashByPlayer.getOrDefault(p.getId(), 0.0)))
                 .toList();
-        
+
         return new MoveResponseDTO(
                 GameMapper.toGameDTO(game),
                 PlayerMapper.toPlayerDTO(currentPlayer, currentDaily),

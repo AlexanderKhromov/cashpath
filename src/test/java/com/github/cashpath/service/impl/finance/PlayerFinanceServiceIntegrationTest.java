@@ -1,4 +1,5 @@
 package com.github.cashpath.service.impl.finance;
+
 import com.github.cashpath.model.entity.Asset;
 import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.Player;

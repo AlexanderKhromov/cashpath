@@ -1,4 +1,5 @@
 package com.github.cashpath.service.impl.move;
+
 import com.github.cashpath.model.dto.BuyRequestDTO;
 import com.github.cashpath.model.dto.MoveResponseDTO;
 import com.github.cashpath.model.entity.Game;
