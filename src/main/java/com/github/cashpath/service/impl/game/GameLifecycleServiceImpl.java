@@ -4,7 +4,6 @@ import com.github.cashpath.exception.GameNotFoundException;
 import com.github.cashpath.exception.PlayersNotFoundInException;
 import com.github.cashpath.model.entity.*;
 import com.github.cashpath.repository.GameRepository;
-import com.github.cashpath.repository.OpportunityCardRepository;
 import com.github.cashpath.service.finance.PlayerFinanceService;
 import com.github.cashpath.service.game.GameLifecycleService;
 import com.github.cashpath.service.opportunity.OpportunityService;

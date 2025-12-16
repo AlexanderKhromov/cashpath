@@ -2,9 +2,6 @@ package com.github.cashpath.util;
 
 import com.github.cashpath.model.entity.Asset;
 import com.github.cashpath.model.entity.OpportunityCard;
-import com.github.cashpath.service.impl.finance.PlayerFinanceServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

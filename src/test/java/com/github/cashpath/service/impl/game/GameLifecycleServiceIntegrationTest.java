@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
-public class GameLifecycleServiceIntegrationTest {
+class GameLifecycleServiceIntegrationTest {
 
     @Autowired
     private GameLifecycleService service;
@@ -27,7 +27,7 @@ public class GameLifecycleServiceIntegrationTest {
 
     @Test
     @DisplayName("Integration test: createGame creates correct bean and sets first player")
-    public void createGame_integration() {
+    void createGame_integration() {
         Player a = new Player();
         a.setName("Alex");
 

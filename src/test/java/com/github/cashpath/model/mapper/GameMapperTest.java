@@ -4,9 +4,6 @@ import com.github.cashpath.model.dto.GameDTO;
 import com.github.cashpath.model.entity.Game;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class GameMapperTest {
@@ -23,7 +20,6 @@ class GameMapperTest {
         assertEquals(10L, dto.id());
         assertEquals(2, dto.currentTurn());
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         assertEquals(1, dto.currentDay());
     }
 }

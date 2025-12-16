@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
-public class PlayerFinanceServiceIntegrationTest {
+class PlayerFinanceServiceIntegrationTest {
     @Autowired
     private PlayerFinanceService financeService;
 

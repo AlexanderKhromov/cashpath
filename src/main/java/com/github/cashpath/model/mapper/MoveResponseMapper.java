@@ -6,10 +6,13 @@ import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.OpportunityCard;
 import com.github.cashpath.model.entity.Player;
 import jakarta.annotation.Nonnull;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MoveResponseMapper {
 
     public static MoveResponseDTO toMoveResponseDTO(@Nonnull Game game, @Nonnull Player currentPlayer, @Nonnull OpportunityCard opportunityCard, @Nonnull Map<Long, Double> dailyCashByPlayer) {

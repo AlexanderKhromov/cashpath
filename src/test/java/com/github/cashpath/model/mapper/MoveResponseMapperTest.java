@@ -6,8 +6,6 @@ import com.github.cashpath.model.entity.OpportunityCard;
 import com.github.cashpath.model.entity.Player;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;

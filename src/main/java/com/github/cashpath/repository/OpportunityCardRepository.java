@@ -1,7 +1,6 @@
 package com.github.cashpath.repository;
 
 import com.github.cashpath.model.entity.OpportunityCard;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,16 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface OpportunityCardRepository extends JpaRepository<OpportunityCard, Long> {
-    /*
-        @EntityGraph(attributePaths = {"asset", "asset.owner"})
-        List<OpportunityCard> findByIsAvailableTrue();
 
-        @EntityGraph(attributePaths = {"asset", "asset.owner"})
-        List<OpportunityCard> findByType(OpportunityCard.OpportunityType type);
-
-        @EntityGraph(attributePaths = {"asset", "asset.owner"})
-        List<OpportunityCard> findByTypeAndIsAvailableTrue(OpportunityCard.OpportunityType type);
-    */
     @Query("""
             select c from OpportunityCard c
             where c.game.id = :gameId

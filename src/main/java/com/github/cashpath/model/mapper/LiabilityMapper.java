@@ -3,7 +3,10 @@ package com.github.cashpath.model.mapper;
 import com.github.cashpath.model.dto.LiabilityDTO;
 import com.github.cashpath.model.entity.Liability;
 import jakarta.annotation.Nonnull;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LiabilityMapper {
 
     public static LiabilityDTO toLiabilityDTO(@Nonnull Liability liability) {

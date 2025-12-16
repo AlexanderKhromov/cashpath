@@ -2,12 +2,14 @@ package com.github.cashpath.util;
 
 import com.github.cashpath.model.entity.Asset;
 import com.github.cashpath.model.entity.OpportunityCard;
-import com.github.cashpath.service.impl.finance.PlayerFinanceServiceImpl;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OpportunityCardGenerator {
     private static final Random RANDOM = new Random();
 
@@ -32,9 +34,8 @@ public class OpportunityCardGenerator {
     // Weighted probabilities
     private static final double SMALL_WEIGHT = 0.55;
     private static final double DOODAD_WEIGHT = 0.30;
-    private static final double BIG_WEIGHT = 0.15;
 
-    private final static List<String> SMALL_ASSETS = List.of(
+    private static final List<String> SMALL_ASSETS = List.of(
             "Акции стартапа 'EcoGrow'",
             "Аренда гаража",
             "Доля в кофейне",
@@ -60,7 +61,7 @@ public class OpportunityCardGenerator {
             "Создание шаблонов для маркетплейсов"
     );
 
-    private final static List<String> BIG_ASSETS = List.of(
+    private static final List<String> BIG_ASSETS = List.of(
             "Бизнес 'Green Energy'",
             "Апарт-отель у моря",
             "Франшиза сети кофеен",
@@ -86,7 +87,7 @@ public class OpportunityCardGenerator {
             "Производство модульных домов"
     );
 
-    private final static List<String> DOODADS = List.of(
+    private static final List<String> DOODADS = List.of(
             "Новый смартфон",
             "Отпуск на Мальдивах",
             "Игровой ПК",

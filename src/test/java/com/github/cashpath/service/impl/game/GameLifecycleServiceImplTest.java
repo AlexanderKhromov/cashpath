@@ -8,7 +8,6 @@ import com.github.cashpath.model.entity.Game;
 import com.github.cashpath.model.entity.Liability;
 import com.github.cashpath.model.entity.Player;
 import com.github.cashpath.repository.GameRepository;
-import com.github.cashpath.repository.OpportunityCardRepository;
 import com.github.cashpath.service.finance.PlayerFinanceService;
 import com.github.cashpath.service.opportunity.OpportunityService;
 import com.github.cashpath.util.PlayerInitializer;
