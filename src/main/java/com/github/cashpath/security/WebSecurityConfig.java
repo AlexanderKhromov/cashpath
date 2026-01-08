@@ -5,11 +5,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -42,9 +42,9 @@ public class WebSecurityConfig {
                         .anyRequest().permitAll()
                 )
                 .headers(headers -> headers
-                        .frameOptions(Customizer.withDefaults()).disable()); // disabling complaining of H2/Thymeleaf
-
-        log.info("⚙️ DEV security mode: CSRF disabled, all requests permitted.");
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                );
+        log.info("⚙️ DEV security mode: iframe SAME_ORIGIN enabled. all requests permitted.");
         return http.build();
     }
 
@@ -62,6 +62,10 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
                                 "/admin/**"
                         ).hasRole("ADMIN")
                         .anyRequest().permitAll()
@@ -74,8 +78,11 @@ public class WebSecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
+                )
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                 );
-        log.info("🔒 PROD security mode: ADMIN protected area enabled.");
+        log.info("🔒 PROD security mode: ADMIN protected area enabled. iframe SAME_ORIGIN enabled");
         return http.build();
     }
 
